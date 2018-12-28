@@ -192,7 +192,7 @@ message OptimizerOptions {
 
   // Control the use of the compiler/jit.  Experimental.
   enum GlobalJitLevel {
-    DEFAULT = 2;  // Default setting ("off" now, but later expected to be "on")
+    DEFAULT = 0;  // Default setting ("off" now, but later expected to be "on")
     OFF = -1;
     // The following settings turn on compilation, with higher values being
     // more aggressive.  Higher values may reduce opportunities for parallelism

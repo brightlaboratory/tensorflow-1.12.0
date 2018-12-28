@@ -35,13 +35,13 @@ static std::once_flag flags_init;
 // Allocate *flags.  Called via call_once(&flags_init,...).
 static void AllocateFlags() {
   flags = new MarkForCompilationPassFlags;
-  flags->tf_xla_auto_jit = 0;
+  flags->tf_xla_auto_jit = 1;
   flags->tf_xla_min_cluster_size = 2;
   flags->tf_xla_max_cluster_size = std::numeric_limits<int32>::max();
   flags->tf_xla_clustering_debug = false;
-  flags->tf_xla_cpu_global_jit = false;
+  flags->tf_xla_cpu_global_jit = true;
   flags->tf_xla_clustering_fuel = std::numeric_limits<int64>::max();
-  flags->tf_xla_fusion_only = false;
+  flags->tf_xla_fusion_only = true;
   flag_list = new std::vector<Flag>(
       {Flag("tf_xla_auto_jit", &flags->tf_xla_auto_jit,
             "Control compilation of operators into XLA computations on CPU and "

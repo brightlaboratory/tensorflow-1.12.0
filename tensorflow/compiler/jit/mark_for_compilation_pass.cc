@@ -534,7 +534,7 @@ OptimizerOptions::GlobalJitLevel GetGlobalJitLevel(
           .global_jit_level();
   if (global_jit_level == OptimizerOptions::DEFAULT) {
     // To set compilation to be on by default, change the following line.
-    global_jit_level = OptimizerOptions::OFF;
+    global_jit_level = OptimizerOptions::ON_2;
   }
   legacy_flags::MarkForCompilationPassFlags* flags =
       legacy_flags::GetMarkForCompilationPassFlags();
