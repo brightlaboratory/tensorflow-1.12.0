@@ -577,12 +577,16 @@ Status MarkForCompilationPass::Run(
       GetGlobalJitLevel(options);
   legacy_flags::MarkForCompilationPassFlags* flags =
       legacy_flags::GetMarkForCompilationPassFlags();
-  bool cpu_global_jit = flags->tf_xla_cpu_global_jit;
-  bool fusion_only = flags->tf_xla_fusion_only;
+  bool cpu_global_jit = true;
+  // flags->tf_xla_cpu_global_jit;
+  bool fusion_only = true;
+  // flags->tf_xla_fusion_only;
 
   VLOG(1) << "flags->tf_xla_cpu_global_jit = " << flags->tf_xla_cpu_global_jit;
   VLOG(1) << "flags->tf_xla_fusion_only = " << flags->tf_xla_fusion_only;
   VLOG(1) << "flags->tf_xla_auto_jit = " << flags->tf_xla_auto_jit;
+  VLOG(1) << "cpu_global_jit = " << cpu_global_jit;
+  VLOG(1) << "fusion_only = " << fusion_only;
   const FunctionLibraryDefinition* fld = options.flib_def;
 
   std::unique_ptr<DeadnessAnalysis> deadness;
