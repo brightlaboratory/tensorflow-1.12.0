@@ -401,6 +401,7 @@ StatusOr<HloInstructionSequence> DFSMemoryScheduler(
   // These variables are a hack to prevent overflows.
   int64 cumulative_total_size = 0;
   int64 total_hlos = computation.parent()->instruction_count();
+  VLOG(1) << "total_hlos: " << total_hlos << "\n";
   absl::flat_hash_map<const HloInstruction*, int64> extra_users;
   absl::flat_hash_map<const HloInstruction*, int64> total_sizes;
   for (const HloInstruction* hlo : computation.MakeInstructionPostOrder()) {
@@ -436,6 +437,10 @@ StatusOr<HloInstructionSequence> DFSMemoryScheduler(
     // and output buffers should be all that matters, not its "history".
     total_sizes[hlo] = std::min(total_sizes[hlo], cumulative_total_size);
     extra_users[hlo] = std::min(extra_users[hlo], total_hlos);
+
+    VLOG(1) << "hlo: " << hlo->ToString()
+            << " total_sizes: " << total_sizes[hlo]
+            << " extra_users[hlo]: " << extra_users[hlo] << "\n";
   }
   CHECK_EQ(extra_users.size(), computation.instruction_count());
   CHECK_EQ(total_sizes.size(), computation.instruction_count());
