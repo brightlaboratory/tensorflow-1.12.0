@@ -584,9 +584,25 @@ StatusOr<std::unique_ptr<Executable>> CpuCompiler::RunBackend(
   // Select an order for emitting the HLO instructions for each
   // computation. Using this sequence enables tighter buffer liveness analysis
   // and reduced memory usage (as compared to using DependencyHloOrdering).
+
+  MemorySchedulerAlgorithm algorithm = DFSMemoryScheduler;
+  const char* env = getenv("TF_MEMORY_SCHEDULER_ALGORITHM");
+
+  if (strlen(env) > 0) {
+    VLOG(0) << "TF_MEMORY_SCHEDULER_ALGORITHM: " << env << "\n";
+  }
+
+  if (strcmp(env, "DFSMemoryScheduler") == 0) {
+    algorithm = DFSMemoryScheduler;
+  } else if (strcmp(env, "ListMemoryScheduler") == 0) {
+    algorithm = ListMemoryScheduler;
+  } else if (strcmp(env, "PostOrderMemoryScheduler") == 0) {
+    algorithm = PostOrderMemoryScheduler;
+  }
+
   TF_ASSIGN_OR_RETURN(
       HloSchedule schedule,
-      ScheduleModule(*module, BufferSizeBytesFunction(), DFSMemoryScheduler));
+      ScheduleModule(*module, BufferSizeBytesFunction(), algorithm));
 
   // Run buffer allocation on the HLO graph.
   TF_ASSIGN_OR_RETURN(
