@@ -590,14 +590,14 @@ StatusOr<std::unique_ptr<Executable>> CpuCompiler::RunBackend(
 
   if (strlen(env) > 0) {
     VLOG(0) << "TF_MEMORY_SCHEDULER_ALGORITHM: " << env << "\n";
-  }
 
-  if (strcmp(env, "DFSMemoryScheduler") == 0) {
-    algorithm = DFSMemoryScheduler;
-  } else if (strcmp(env, "ListMemoryScheduler") == 0) {
-    algorithm = ListMemoryScheduler;
-  } else if (strcmp(env, "PostOrderMemoryScheduler") == 0) {
-    algorithm = PostOrderMemoryScheduler;
+    if (strcmp(env, "DFSMemoryScheduler") == 0) {
+      algorithm = DFSMemoryScheduler;
+    } else if (strcmp(env, "ListMemoryScheduler") == 0) {
+      algorithm = ListMemoryScheduler;
+    } else if (strcmp(env, "PostOrderMemoryScheduler") == 0) {
+      algorithm = PostOrderMemoryScheduler;
+    }
   }
 
   TF_ASSIGN_OR_RETURN(
