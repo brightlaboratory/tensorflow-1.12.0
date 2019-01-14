@@ -579,7 +579,7 @@ Status MarkForCompilationPass::Run(
       legacy_flags::GetMarkForCompilationPassFlags();
   bool cpu_global_jit = true;
   // flags->tf_xla_cpu_global_jit;
-  bool fusion_only = true;
+  bool fusion_only = false;
   // flags->tf_xla_fusion_only;
 
   VLOG(1) << "flags->tf_xla_cpu_global_jit = " << flags->tf_xla_cpu_global_jit;
@@ -1008,6 +1008,18 @@ Status MarkForCompilationPass::RunImpl(
     } else if (options.flib_def->GetAttr(*n, kXlaCompileAttr, &compile_attr)
                    .ok()) {
       marked_for_compilation = compile_attr;
+    }
+
+    if (!marked_for_compilation) {
+      const char* env = getenv("TF_AGGRESSIVE_MARK_FOR_COMPILATION");
+
+      if (strlen(env) > 0) {
+        VLOG(0) << "TF_AGGRESSIVE_MARK_FOR_COMPILATION: " << env << "\n";
+
+        if (strcmp(env, "TRUE") == 0) {
+          marked_for_compilation = true;
+        }
+      }
     }
 
     // Compile if this operator is placed on a device that requires
