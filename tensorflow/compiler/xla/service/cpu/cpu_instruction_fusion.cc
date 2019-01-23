@@ -64,8 +64,16 @@ bool CanBeOutputFusedIntoSomeOperand(const HloInstruction* consumer) {
 bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
                                       int64 operand_index) {
   HloInstruction* producer = consumer->mutable_operand(operand_index);
+  VLOG(2) << "Considering for fusion: producer " << producer->ToString();
   VLOG(2) << "Considering for fusion: operand " << operand_index << " of "
           << consumer->ToString();
+
+  VLOG(2) << "opcode: " << HloOpcodeString(consumer->opcode())
+          << " operand_count: " << consumer->operand_count();
+
+  for (int i = 0; i < consumer->operand_count(); i++) {
+    VLOG(2) << "operand " << i << " : " << consumer->operand(i)->ToString();
+  }
 
   constexpr int kFusionThresholdBytes = 16 * 1024;
 
