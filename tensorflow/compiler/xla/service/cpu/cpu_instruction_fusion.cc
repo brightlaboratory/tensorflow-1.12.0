@@ -63,6 +63,16 @@ bool CanBeOutputFusedIntoSomeOperand(const HloInstruction* consumer) {
 
 bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
                                       int64 operand_index) {
+  const char* env = getenv("TF_CPU_FUSION");
+
+  if (env && strlen(env) > 0) {
+    VLOG(0) << "TF_CPU_FUSION: " << env << "\n";
+
+    if (strcmp(env, "FALSE") == 0) {
+      return false;
+    }
+  }
+
   HloInstruction* producer = consumer->mutable_operand(operand_index);
   VLOG(2) << "Considering for fusion: producer " << producer->ToString();
   VLOG(2) << "Considering for fusion: operand " << operand_index << " of "

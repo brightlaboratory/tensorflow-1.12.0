@@ -588,7 +588,7 @@ StatusOr<std::unique_ptr<Executable>> CpuCompiler::RunBackend(
   MemorySchedulerAlgorithm algorithm = DFSMemoryScheduler;
   const char* env = getenv("TF_MEMORY_SCHEDULER_ALGORITHM");
 
-  if (strlen(env) > 0) {
+  if (env && strlen(env) > 0) {
     VLOG(0) << "TF_MEMORY_SCHEDULER_ALGORITHM: " << env << "\n";
 
     if (strcmp(env, "DFSMemoryScheduler") == 0) {
