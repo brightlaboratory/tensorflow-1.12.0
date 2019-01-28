@@ -35,8 +35,22 @@ class SimpleCostModel : public ParallelCostModel {
   ~SimpleCostModel() override {}
 
   int64 GetParallelTaskCount(HloInstruction* instruction) override {
+    const char* env = getenv("TF_USE_MAX_PARALLELISM");
+
+    if (env && strlen(env) > 0) {
+      VLOG(0) << "TF_USE_MAX_PARALLELISM: " << env << "\n";
+
+      if (strcmp(env, "TRUE") == 0) {
+        return max_parallelism_;
+      }
+    }
+
     // Simple cost model based on hlo size and typical L2 cache size.
     const int64 instruction_cost = shape_size_(instruction->shape());
+    VLOG(2) << instruction->ToString() << " shape(): " << instruction->shape()
+            << " instruction_cost: " << instruction_cost
+            << " num_threads: " << instruction_cost / min_cost_per_thread
+            << "\n";
     const int64 min_cost_per_thread = 256LL << 10;  // 256KB L2 Cache size.
     // Return target parallel task count in [1, max_parallelism_].
     return std::min(max_parallelism_,
@@ -59,6 +73,14 @@ class DefaultCostModel : public ParallelCostModel {
   ~DefaultCostModel() override {}
 
   int64 GetParallelTaskCount(HloInstruction* instruction) override {
+    if (env && strlen(env) > 0) {
+      VLOG(0) << "TF_USE_MAX_PARALLELISM: " << env << "\n";
+
+      if (strcmp(env, "TRUE") == 0) {
+        return max_parallelism_;
+      }
+    }
+
     // Parameters for parallel task count computation.
     int64 instruction_cost;
     int64 min_cost_per_thread;
@@ -94,6 +116,9 @@ class DefaultCostModel : public ParallelCostModel {
       min_cost_per_thread = 100000;
     }
     // Return target parallel task count in [1, max_parallelism_].
+    VLOG(2) << "instruction: " << instruction->ToString()
+            << "num_threads: " << instruction_cost / min_cost_per_thread
+            << "\n";
     return std::min(max_parallelism,
                     std::max(int64{1}, instruction_cost / min_cost_per_thread));
   }
@@ -229,6 +254,8 @@ bool ParallelTaskAssigner::AssignParallelTasksHelper(
     VLOG(2) << "Assigned parallel task count: " << total_partition_count
             << " to instruction: " << new_root->name()
             << " parent: " << new_root->parent()->name();
+    VLOG(2) << "target_parallel_task_count: " << target_parallel_task_count
+            << "\n";
     changed = true;
   }
   return changed;
