@@ -43,11 +43,11 @@ class SimpleCostModel : public ParallelCostModel {
 
     // Simple cost model based on hlo size and typical L2 cache size.
     const int64 instruction_cost = shape_size_(instruction->shape());
+    const int64 min_cost_per_thread = 256LL << 10;  // 256KB L2 Cache size.
     VLOG(2) << instruction->ToString() << " shape(): " << instruction->shape()
             << " instruction_cost: " << instruction_cost
             << " num_threads: " << instruction_cost / min_cost_per_thread
             << "\n";
-    const int64 min_cost_per_thread = 256LL << 10;  // 256KB L2 Cache size.
     // Return target parallel task count in [1, max_parallelism_].
     return std::min(max_parallelism_,
                     std::max(int64{1}, instruction_cost / min_cost_per_thread));
