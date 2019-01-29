@@ -35,14 +35,10 @@ class SimpleCostModel : public ParallelCostModel {
   ~SimpleCostModel() override {}
 
   int64 GetParallelTaskCount(HloInstruction* instruction) override {
-    const char* env = getenv("TF_USE_MAX_PARALLELISM");
-
+    const char* env = getenv("TF_PARALLEL_TASK_COUNT");
     if (env && strlen(env) > 0) {
-      VLOG(0) << "TF_USE_MAX_PARALLELISM: " << env << "\n";
-
-      if (strcmp(env, "TRUE") == 0) {
-        return max_parallelism_;
-      }
+      VLOG(0) << "TF_PARALLEL_TASK_COUNT: " << env << "\n";
+      return atoi(env);
     }
 
     // Simple cost model based on hlo size and typical L2 cache size.
@@ -73,12 +69,10 @@ class DefaultCostModel : public ParallelCostModel {
   ~DefaultCostModel() override {}
 
   int64 GetParallelTaskCount(HloInstruction* instruction) override {
+    const char* env = getenv("TF_PARALLEL_TASK_COUNT");
     if (env && strlen(env) > 0) {
-      VLOG(0) << "TF_USE_MAX_PARALLELISM: " << env << "\n";
-
-      if (strcmp(env, "TRUE") == 0) {
-        return max_parallelism_;
-      }
+      VLOG(0) << "TF_PARALLEL_TASK_COUNT: " << env << "\n";
+      return atoi(env);
     }
 
     // Parameters for parallel task count computation.
