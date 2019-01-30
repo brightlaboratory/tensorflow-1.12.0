@@ -1260,7 +1260,7 @@ Status DotOpEmitter::Emit() {
   const char* env = getenv("TF_EMIT_LLVM_IR_DOT");
   if (env && strlen(env) > 0) {
     VLOG(0) << "TF_EMIT_LLVM_IR_DOT: " << env << "\n";
-    if (strcmp(env) == "FALSE") {
+    if (strcmp(env, "FALSE") == 0) {
       shouldUseLlvmIrDot = false;
     }
   }
