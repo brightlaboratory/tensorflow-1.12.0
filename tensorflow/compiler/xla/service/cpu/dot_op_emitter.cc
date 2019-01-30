@@ -1256,8 +1256,19 @@ Status DotOpEmitter::Emit() {
     return EmitScalarDot();
   }
 
-  if (EmitLlvmIrDotIfProfitable()) {
-    return Status::OK();
+  bool shouldUseLlvmIrDot = true;
+  const char* env = getenv("TF_EMIT_LLVM_IR_DOT");
+  if (env && strlen(env) > 0) {
+    VLOG(0) << "TF_EMIT_LLVM_IR_DOT: " << env << "\n";
+    if (strcmp(env) == "FALSE") {
+      shouldUseLlvmIrDot = false;
+    }
+  }
+
+  if (shouldUseLlvmIrDot) {
+    if (EmitLlvmIrDotIfProfitable()) {
+      return Status::OK();
+    }
   }
 
   CHECK_EQ(addend_array_, nullptr);
@@ -1266,9 +1277,11 @@ Status DotOpEmitter::Emit() {
     return EmitCallToRuntime();
   }
 
-  // Reduce along dimension 0 of the LHS and 1 of the RHS. Vectors are a special
-  // case where the reduction dimension is 0 for both LHS and RHS. This results
-  // in a vector dot product producing a scalar.
+  VLOG(2) << "Library call could not be made\n";
+
+  // Reduce along dimension 0 of the LHS and 1 of the RHS. Vectors are a
+  // special case where the reduction dimension is 0 for both LHS and RHS.
+  // This results in a vector dot product producing a scalar.
   int64 lhs_reduction_dimension =
       dot_.dot_dimension_numbers().lhs_contracting_dimensions(0);
   int64 rhs_reduction_dimension =
@@ -1438,6 +1451,9 @@ Status DotOpEmitter::EmitCallToRuntime() {
   bool multi_threaded = ShouldUseMultiThreadedEigen();
   bool use_mkl_dnn = hlo_module_config_.debug_options().xla_cpu_use_mkl_dnn();
   PrimitiveType type = target_array_.GetShape().element_type();
+
+  VLOG(2) << "In EmitCallToRuntime, multi_threaded: " << multi_threaded
+          << " use_mkl_dnn: " << use_mkl_dnn << "\n";
   llvm::Type* float_type;
   const char* fn_name;
   switch (type) {
