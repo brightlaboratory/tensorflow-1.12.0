@@ -17,11 +17,11 @@ limitations under the License.
 
 #define EIGEN_USE_THREADS
 
-#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
 #include "tensorflow/compiler/xla/executable_run_options.h"
 #include "tensorflow/compiler/xla/service/cpu/runtime_matvec.h"
 #include "tensorflow/core/platform/dynamic_annotations.h"
 #include "tensorflow/core/platform/types.h"
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
 
 using tensorflow::int32;
 using tensorflow::int64;
@@ -67,10 +67,21 @@ void MatMul(const void* run_options_ptr, T* out, T* lhs, T* rhs, int64 m,
 template <typename T>
 void MatMulImpl(const void* run_options_ptr, T* out, T* lhs, T* rhs, int64 m,
                 int64 n, int64 k, int32 transpose_lhs, int32 transpose_rhs) {
-  if (m == 1 || n == 1) {
+  const char* env = getenv("TF_USE_PARALLEL_MAT_VEC_MULTIPLY");
+  bool useParallelMatMul = false;
+  if (env && strlen(env) > 0) {
+    VLOG(0) << "TF_USE_PARALLEL_MAT_VEC_MULTIPLY: " << env << "\n";
+    if (strcmp(env, "TRUE") == 0) {
+      useParallelMatMul = true;
+    }
+  }
+
+  if (!useParallelMatMul && (m == 1 || n == 1)) {
     // Despite being single threaded, this version of matrix * vector is faster.
+    VLOG(2) << "Using EigenMatVec\n";
     xla::EigenMatVec<T>(out, lhs, rhs, m, n, k, transpose_lhs, transpose_rhs);
   } else {
+    VLOG(2) << "Using MatMul\n";
     MatMul<T>(run_options_ptr, out, lhs, rhs, m, n, k, transpose_lhs,
               transpose_rhs);
   }
