@@ -109,7 +109,8 @@ bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
         bool shouldFuse = false;
         bool decision = RunSmartFusionModel(producer, consumer, &shouldFuse);
         if (decision) {
-          return decision;
+          VLOG(2) << "shouldFuse: " << shouldFuse << "\n";
+          return shouldFuse;
         }
       }
     }
