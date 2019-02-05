@@ -18,6 +18,9 @@ limitations under the License.
 
 #include <iostream>
 #include "tensorflow/core/platform/types.h"
+
+// FIXME: This is to force the use of Intel MKL.
+#define INTEL_MKL
 #ifdef INTEL_MKL
 #include "third_party/intel_mkl_ml/include/mkl_cblas.h"
 
