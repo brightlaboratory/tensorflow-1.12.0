@@ -61,15 +61,29 @@ bool CanBeOutputFusedIntoSomeOperand(const HloInstruction* consumer) {
 }
 }  // namespace
 
+bool RunSmartFusionModel(const HloInstruction* producer,
+                         const HloInstruction* consumer, bool* shouldFuse) {
+  bool decision = false;
+  if (producer->opcode() == HloOpcode::kDot ||
+      producer->opcode() == HloOpcode::kDot) {
+    *shouldFuse = false;
+    decision = true;
+  }
+
+  return decision;
+}
+
 bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
                                       int64 operand_index) {
-  const char* env = getenv("TF_CPU_FUSION");
+  {
+    const char* env = getenv("TF_CPU_FUSION");
 
-  if (env && strlen(env) > 0) {
-    VLOG(0) << "TF_CPU_FUSION: " << env << "\n";
+    if (env && strlen(env) > 0) {
+      VLOG(0) << "TF_CPU_FUSION: " << env << "\n";
 
-    if (strcmp(env, "FALSE") == 0) {
-      return false;
+      if (strcmp(env, "FALSE") == 0) {
+        return false;
+      }
     }
   }
 
@@ -83,6 +97,23 @@ bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
 
   for (int i = 0; i < consumer->operand_count(); i++) {
     VLOG(2) << "operand " << i << " : " << consumer->operand(i)->ToString();
+  }
+
+  {
+    const char* env = getenv("TF_CPU_SMART_FUSION");
+
+    if (env && strlen(env) > 0) {
+      VLOG(0) << "TF_CPU_SMART_FUSION: " << env << "\n";
+
+      if (strcmp(env, "TRUE") == 0) {
+        bool shouldFuse = false;
+        bool decision =
+            RunSmartFusionModel(consumer, operand_index, &shouldFuse);
+        if (decision) {
+          return decision;
+        }
+      }
+    }
   }
 
   constexpr int kFusionThresholdBytes = 16 * 1024;
