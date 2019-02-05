@@ -119,10 +119,12 @@ bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
   constexpr int kFusionThresholdBytes = 16 * 1024;
 
   if (CanBeOutputFused(producer, consumer)) {
+    VLOG(2) << "Fusing: CanBeOutputFused\n";
     return true;
   }
 
   if (CanBeOutputFusedIntoSomeOperand(producer)) {
+    VLOG(2) << "Not fusing: CanBeOutputFusedIntoSomeOperand\n";
     return false;
   }
 
