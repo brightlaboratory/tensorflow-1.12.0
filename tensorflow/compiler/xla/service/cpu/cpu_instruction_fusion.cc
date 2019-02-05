@@ -99,6 +99,7 @@ bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
     VLOG(2) << "operand " << i << " : " << consumer->operand(i)->ToString();
   }
 
+  bool smartFusion = false;
   {
     const char* env = getenv("TF_CPU_SMART_FUSION");
 
@@ -106,6 +107,7 @@ bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
       VLOG(0) << "TF_CPU_SMART_FUSION: " << env << "\n";
 
       if (strcmp(env, "TRUE") == 0) {
+        smartFusion = true;
         bool shouldFuse = false;
         bool decision = RunSmartFusionModel(producer, consumer, &shouldFuse);
         if (decision) {
@@ -118,14 +120,16 @@ bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
 
   constexpr int kFusionThresholdBytes = 16 * 1024;
 
-  if (CanBeOutputFused(producer, consumer)) {
-    VLOG(2) << "Fusing: CanBeOutputFused\n";
-    return true;
-  }
+  if (!smartFusion) {
+    if (CanBeOutputFused(producer, consumer)) {
+      VLOG(2) << "Fusing: CanBeOutputFused\n";
+      return true;
+    }
 
-  if (CanBeOutputFusedIntoSomeOperand(producer)) {
-    VLOG(2) << "Not fusing: CanBeOutputFusedIntoSomeOperand\n";
-    return false;
+    if (CanBeOutputFusedIntoSomeOperand(producer)) {
+      VLOG(2) << "Not fusing: CanBeOutputFusedIntoSomeOperand\n";
+      return false;
+    }
   }
 
   if (!CanBeLoopFused(*producer)) {
@@ -201,6 +205,19 @@ bool CpuInstructionFusion::ShouldFuse(HloInstruction* consumer,
 
 HloInstruction::FusionKind CpuInstructionFusion::ChooseKind(
     const HloInstruction* producer, const HloInstruction* consumer) {
+  {
+    const char* env = getenv("TF_CPU_SMART_FUSION");
+
+    if (env && strlen(env) > 0) {
+      VLOG(2) << "TF_CPU_SMART_FUSION: " << env << "\n";
+
+      if (strcmp(env, "TRUE") == 0) {
+        VLOG(2) << "HloInstruction::FusionKind::kLoop;\n";
+        return HloInstruction::FusionKind::kLoop;
+      }
+    }
+  }
+
   return CanBeOutputFused(producer, consumer)
              ? HloInstruction::FusionKind::kOutput
              : HloInstruction::FusionKind::kLoop;
