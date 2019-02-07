@@ -417,6 +417,19 @@ Status FindCompilationCandidates(
     VLOG(4) << "Device type for " << node->name() << ": "
             << device_type.type_string();
 
+    {
+      const char* env = getenv("TF_CPU_SMART_FUSION");
+      if (env && strlen(env) > 0) {
+        if (strcmp(env, "TRUE") == 0) {
+          VLOG(2) << "TF_CPU_SMART_FUSION: " << env << "\n";
+          if (node->name() == "MatMul") {
+            VLOG(2) << "Rejecting " << node->name() << "\n";
+            continue;
+          }
+        }
+      }
+    }
+
     if (is_compilable_fn && !is_compilable_fn(node, device_type)) {
       // is_compilable_fn has already logged the reason if it returned false.
       continue;
