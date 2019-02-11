@@ -16,6 +16,8 @@
 
 _SINGLE_URL_WHITELIST = depset([
     "arm_compiler",
+# TODO(ysahil): Allow ISL in whitelist for now, since it is not in bazel mirror right now
+    "isl", 
 ])
 
 def _is_windows(ctx):
