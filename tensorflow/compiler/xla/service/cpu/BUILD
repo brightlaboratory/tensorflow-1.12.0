@@ -451,7 +451,7 @@ cc_library(
         "@llvm//:object",
         "@llvm//:support",
         "@llvm//:target",
-        "@isl//:isl",
+        "@pet//:pet",
     ],
 )
 
