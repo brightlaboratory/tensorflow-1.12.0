@@ -616,12 +616,6 @@ StatusOr<bool> BatchNormExpander::Run(HloModule* module) {
 
       if (strcmp(env, "TRUE") == 0) {
         smartFusion = true;
-        bool shouldFuse = false;
-        bool decision = RunSmartFusionModel(producer, consumer, &shouldFuse);
-        if (decision) {
-          VLOG(2) << "shouldFuse: " << shouldFuse << "\n";
-          return shouldFuse;
-        }
       }
     }
   }
