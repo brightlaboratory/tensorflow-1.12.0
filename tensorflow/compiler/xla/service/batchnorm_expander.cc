@@ -606,13 +606,36 @@ Status BatchNormExpanderVisitor::HandleBatchNormGrad(
 StatusOr<bool> BatchNormExpander::Run(HloModule* module) {
   XLA_VLOG_LINES(2, "BatchNormExpander::Run(), before:\n" + module->ToString());
   bool changed = false;
-  for (auto* comp : module->MakeNonfusionComputations()) {
-    if (BatchNormExpanderVisitor::Run(comp, rewrite_training_op_,
-                                      rewrite_inference_op_,
-                                      rewrite_grad_op_)) {
-      changed = true;
+
+  bool smartFusion = false;
+  {
+    const char* env = getenv("TF_CPU_SMART_FUSION");
+
+    if (env && strlen(env) > 0) {
+      VLOG(0) << "TF_CPU_SMART_FUSION: " << env << "\n";
+
+      if (strcmp(env, "TRUE") == 0) {
+        smartFusion = true;
+        bool shouldFuse = false;
+        bool decision = RunSmartFusionModel(producer, consumer, &shouldFuse);
+        if (decision) {
+          VLOG(2) << "shouldFuse: " << shouldFuse << "\n";
+          return shouldFuse;
+        }
+      }
     }
   }
+
+  if (!smartFusion) {
+    for (auto* comp : module->MakeNonfusionComputations()) {
+      if (BatchNormExpanderVisitor::Run(comp, rewrite_training_op_,
+                                        rewrite_inference_op_,
+                                        rewrite_grad_op_)) {
+        changed = true;
+      }
+    }
+  }
+
   XLA_VLOG_LINES(2, "BatchNormExpander::Run(), after:\n" + module->ToString());
   return changed;
 }
