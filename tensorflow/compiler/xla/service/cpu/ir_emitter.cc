@@ -1096,6 +1096,8 @@ StatusOr<llvm::Value*> IrEmitter::EmitTargetElementLoopBodyForConvolution(
 }
 
 Status HandleBatchNormTraining(HloInstruction* batchnorm_training) {
+  VLOG(2) << "HandleBatchNormTraining: " << batchnorm_training->ToString()
+          << "\n";
   return Status::OK();
 }
 
