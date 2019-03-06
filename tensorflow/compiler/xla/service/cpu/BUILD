@@ -576,6 +576,21 @@ cc_library(
 )
 
 cc_library(
+    name = "runtime_libxsmmm",
+    srcs = ["runtime_libxsmmm.cc"],
+    hdrs = ["runtime_libxsmmm.h"],
+    copts = runtime_copts(),
+    visibility = ["//visibility:public"],
+    deps = [
+        ":runtime_matvec",
+        "//tensorflow/compiler/xla:executable_run_options",
+		"//tensorflow/core:lib",
+        "//tensorflow/core:framework_lite",
+        "//third_party/libxsmmm",
+    ],
+)
+
+cc_library(
     name = "runtime_matmul_mkl",
     srcs = ["runtime_matmul_mkl.cc"],
     hdrs = ["runtime_matmul_mkl.h"],
