@@ -1100,11 +1100,8 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
           << "\n";
 
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
-  llvm::Function* function = b_.GetInsertBlock()->getParent();
-  llvm::Module* module = function->getParent();
-
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
-      module->getOrInsertFunction(fn_name, b_.getVoidTy()));
+      module_->getOrInsertFunction(fn_name, b_.getVoidTy()));
   libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
   Call(libxsmm_stub_func);
   return Status::OK();
