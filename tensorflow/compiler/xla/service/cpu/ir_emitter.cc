@@ -1110,9 +1110,11 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, b_.getVoidTy()));
-  libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
-  Call(libxsmm_stub_func);
   TF_RETURN_IF_ERROR(EmitTargetAddressForOp(batchnorm_training));
+  libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
+  libxsmm_stub_func->setDoesNotThrow();
+  libxsmm_stub_func->setOnlyAccessesArgMemory();
+  Call(libxsmm_stub_func);
   return Status::OK();
 }
 
