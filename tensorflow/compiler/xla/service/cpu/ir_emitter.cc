@@ -1112,7 +1112,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
       module_->getOrInsertFunction(fn_name, b_.getVoidTy()));
   libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
   Call(libxsmm_stub_func);
-  emitted_value_[batchnorm_trainingbatchnorm_training] =
+  emitted_value_[batchnorm_training] =
       GetEmittedValueFor(batchnorm_training->operand(0));
   return Status::OK();
 }

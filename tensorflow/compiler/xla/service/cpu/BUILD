@@ -569,6 +569,7 @@ cc_library(
     deps = [
         ":runtime_matvec",
         "//tensorflow/compiler/xla:executable_run_options",
+		"//tensorflow/core",
         "//tensorflow/core:framework_lite",
         "//third_party/eigen3",
     ],
@@ -581,7 +582,6 @@ cc_library(
     copts = runtime_copts(),
     visibility = ["//visibility:public"],
     deps = [
-        ":runtime_matvec",
         "//tensorflow/compiler/xla:executable_run_options",
         "//tensorflow/core:framework_lite",
         "//third_party/libxsmmm",
