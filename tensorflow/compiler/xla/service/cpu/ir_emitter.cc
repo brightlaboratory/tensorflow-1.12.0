@@ -1099,11 +1099,21 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "HandleBatchNormTraining: " << batchnorm_training->ToString()
           << "\n";
 
+  VLOG(2) << "batchnorm_training->operand_count(): "
+          << batchnorm_training->operand_count();
+
+  for (int i = 0; i < batchnorm_training->operand_count(); i++) {
+    VLOG(2) << "operand " << i << " : "
+            << batchnorm_training->operand(i)->ToString();
+  }
+
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, b_.getVoidTy()));
   libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
   Call(libxsmm_stub_func);
+  emitted_value_[batchnorm_trainingbatchnorm_training] =
+      GetEmittedValueFor(batchnorm_training->operand(0));
   return Status::OK();
 }
 
