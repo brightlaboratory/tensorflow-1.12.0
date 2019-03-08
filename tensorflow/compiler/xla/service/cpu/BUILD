@@ -183,6 +183,7 @@ cc_library(
         ":runtime_fork_join",
         ":runtime_key_value_sort",
         ":runtime_matmul",
+		":runtime_libxsmmm",
         ":runtime_matmul_mkl",
         ":runtime_single_threaded_conv2d",
         ":runtime_single_threaded_fft",

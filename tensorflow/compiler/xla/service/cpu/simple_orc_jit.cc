@@ -36,6 +36,7 @@ limitations under the License.
 #include "tensorflow/compiler/xla/service/cpu/runtime_fork_join.h"
 #include "tensorflow/compiler/xla/service/cpu/runtime_fp16.h"
 #include "tensorflow/compiler/xla/service/cpu/runtime_key_value_sort.h"
+#include "tensorflow/compiler/xla/service/cpu/runtime_libxsmm.h"
 #include "tensorflow/compiler/xla/service/cpu/runtime_matmul.h"
 #include "tensorflow/compiler/xla/service/cpu/runtime_matmul_mkl.h"
 #include "tensorflow/compiler/xla/service/cpu/runtime_single_threaded_conv2d.h"
@@ -215,6 +216,7 @@ bool RegisterKnownJITSymbols() {
   REGISTER_CPU_RUNTIME_SYMBOL(KeyValueSortS64);
   REGISTER_CPU_RUNTIME_SYMBOL(KeyValueSortU64);
   REGISTER_CPU_RUNTIME_SYMBOL(KeyValueSortF64);
+  REGISTER_CPU_RUNTIME_SYMBOL(LibxsmmStub);
 
   registry->Register("__gnu_f2h_ieee", reinterpret_cast<void*>(__gnu_f2h_ieee));
   registry->Register("__gnu_h2f_ieee", reinterpret_cast<void*>(__gnu_h2f_ieee));
