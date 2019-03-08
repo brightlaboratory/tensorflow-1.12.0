@@ -15,7 +15,7 @@ extern void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
     const float* input_ptr, float* output_ptr, float offset, float scale,
     float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
 
-extern void __xla_cpu_runtime_naive_libxmm_stub();
+extern void __xla_cpu_runtime_LibxsmmStub();
 }
 
 #endif

@@ -183,7 +183,7 @@ cc_library(
         ":runtime_fork_join",
         ":runtime_key_value_sort",
         ":runtime_matmul",
-		":runtime_libxsmmm",
+		":runtime_libxsmm",
         ":runtime_matmul_mkl",
         ":runtime_single_threaded_conv2d",
         ":runtime_single_threaded_fft",
@@ -577,15 +577,15 @@ cc_library(
 )
 
 cc_library(
-    name = "runtime_libxsmmm",
-    srcs = ["runtime_libxsmmm.cc"],
-    hdrs = ["runtime_libxsmmm.h"],
+    name = "runtime_libxsmm",
+    srcs = ["runtime_libxsmm.cc"],
+    hdrs = ["runtime_libxsmm.h"],
     copts = runtime_copts(),
     visibility = ["//visibility:public"],
     deps = [
         "//tensorflow/compiler/xla:executable_run_options",
         "//tensorflow/core:framework_lite",
-        "//third_party/libxsmmm",
+        #"//third_party/libxsmmm",
     ],
 )
 
