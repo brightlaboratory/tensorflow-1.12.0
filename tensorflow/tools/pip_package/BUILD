@@ -166,12 +166,8 @@ filegroup(
         "@termcolor_archive//:COPYING.txt",
         "@zlib_archive//:zlib.h",
         "@org_python_pypi_backports_weakref//:LICENSE",
-    ] + select({
-        "//tensorflow/core/kernels:xsmm": [
-            "@libxsmm_archive//:LICENSE.md",
-        ],
-        "//conditions:default": [],
-    }) + if_cuda([
+		"@libxsmm_archive//:LICENSE.md",
+    ] + if_cuda([
         "@cub_archive//:LICENSE.TXT",
         "@local_config_nccl//:LICENSE",
     ]) + if_mkl([

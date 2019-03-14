@@ -127,11 +127,17 @@ function prepare_src() {
   # over so user defined ops can be compiled.
   mkdir -p ${TMPDIR}/google
   mkdir -p ${TMPDIR}/third_party
+  mkdir -p ${TMPDIR}/intel
   pushd ${RUNFILES%org_tensorflow} > /dev/null
   for header in $(find protobuf_archive -name \*.h); do
     mkdir -p "${TMPDIR}/google/$(dirname ${header})"
     cp "$header" "${TMPDIR}/google/$(dirname ${header})/"
   done
+  for header in $(find libxsmm_archive -name \*.h); do
+    mkdir -p "${TMPDIR}/intel/$(dirname ${header})"
+    cp "$header" "${TMPDIR}/intel/$(dirname ${header})/"
+  done
+
   popd > /dev/null
   cp -R $RUNFILES/third_party/eigen3 ${TMPDIR}/third_party
 

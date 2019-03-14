@@ -173,6 +173,7 @@ class InstallHeaders(Command):
     # we can do the symlink.
     external_header_locations = [
         'tensorflow/include/external/eigen_archive/',
+		'tensorflow/include/external/libxsmm_archive/',
         'tensorflow/include/external/com_google_absl/',
     ]
     for location in external_header_locations:
@@ -234,7 +235,8 @@ headers = (list(find_files('*.h', 'tensorflow/core')) +
                            'tensorflow/include/external/com_google_absl')) +
            list(find_files('*.inc',
                            'tensorflow/include/external/com_google_absl')) +
-           list(find_files('*', 'tensorflow/include/external/eigen_archive')))
+           list(find_files('*', 'tensorflow/include/external/eigen_archive')) + 
+		   list(find_files('*', 'tensorflow/include/external/libxsmm_archive')))
 
 setup(
     name=project_name,

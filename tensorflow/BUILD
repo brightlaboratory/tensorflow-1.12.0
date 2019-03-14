@@ -496,6 +496,7 @@ genrule(
       d="$${f%/*}"
       d="$${d#bazel-out*genfiles/}"
       d="$${d#*external/eigen_archive/}"
+	  d="$${d#*external/libxsmm_archive/}"
 
       if [[ $${d} == *local_config_* ]]; then
         continue
