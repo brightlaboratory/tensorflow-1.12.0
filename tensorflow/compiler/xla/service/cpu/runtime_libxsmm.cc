@@ -8,6 +8,6 @@ void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
 }
 
 void __xla_cpu_runtime_LibxsmmStub() {
-  libxsmm_dnn_tensor_datalayout layout;
+  libxsmm_dnn_fusedbatchnorm_desc bn_desc;
   printf("Hello from libxsmm stub\n");
 }
