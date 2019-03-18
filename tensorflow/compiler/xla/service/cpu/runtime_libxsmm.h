@@ -2,6 +2,7 @@
 #ifndef TENSORFLOW_COMPILER_XLA_SERVICE_CPU_RUNTIME_LIBXSMM_H_
 #define TENSORFLOW_COMPILER_XLA_SERVICE_CPU_RUNTIME_LIBXSMM_H_
 
+#include <libxsmm.h>
 #include <libxsmm_dnn.h>
 #include <math.h>
 #include <omp.h>

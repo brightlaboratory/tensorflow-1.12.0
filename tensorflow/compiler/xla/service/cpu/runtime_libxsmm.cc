@@ -1,7 +1,5 @@
 #include "tensorflow/compiler/xla/service/cpu/runtime_libxsmm.h"
 
-#include <libxsmm.h>
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,35 +113,6 @@ void __xla_cpu_runtime_LibxsmmStub() {
     return 0;
   }
   libxsmm_srand(1);
-
-  /* reading new values from cli */
-  i = 1;
-  if (argc > i) iters = atoi(argv[i++]);
-  if (argc > i) ifw = atoi(argv[i++]);
-  if (argc > i) ifh = atoi(argv[i++]);
-  if (argc > i) nImg = atoi(argv[i++]);
-  if (argc > i) nFm = atoi(argv[i++]);
-  if (argc > i) pad_w_in = atoi(argv[i++]);
-  if (argc > i) pad_h_in = atoi(argv[i++]);
-  if (argc > i) pad_w_out = atoi(argv[i++]);
-  if (argc > i) pad_h_out = atoi(argv[i++]);
-  if (argc > i) stride = atoi(argv[i++]);
-  if (argc > i) norm_type = atoi(argv[i++]);
-  if (argc > i) fuse_type = atoi(argv[i++]);
-  if (argc > i) type = *(argv[i++]);
-
-  if (type != 'A' && type != 'F' && type != 'B') {
-    printf("type needs to be 'A' (All), 'F' (FP only), 'B' (BP only)\n");
-    return -1;
-  }
-  if ((norm_type != 0) && (norm_type != 1)) {
-    printf("norm type needs to be 0 or 1\n");
-    return -1;
-  }
-  if ((fuse_type < 0) && (fuse_type > 3)) {
-    printf("fuse type needs to be 0, 1, 2, or 3\n");
-    return -1;
-  }
 
   stride_w = stride;
   stride_h = stride;
