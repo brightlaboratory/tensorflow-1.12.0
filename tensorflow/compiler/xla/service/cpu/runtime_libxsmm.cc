@@ -105,13 +105,6 @@ void __xla_cpu_runtime_LibxsmmStub() {
   memset(&norms_bwd, 0, sizeof(norms_bwd));
   memset(&diff, 0, sizeof(diff));
 
-  if (argc > 1 && !strncmp(argv[1], "-h", 3)) {
-    printf(
-        "Usage: %s iters inpWidth inpHeight nImg nFm pad_w_in pad_h_in "
-        "pad_w_out pad_h_out stride type format\n",
-        argv[0]);
-    return 0;
-  }
   libxsmm_srand(1);
 
   stride_w = stride;
@@ -339,7 +332,7 @@ void __xla_cpu_runtime_LibxsmmStub() {
         fusedbatchnorm_desc.fuse_ops = LIBXSMM_DNN_FUSEDBN_OPS_BN_ELTWISE_RELU;
       } else {
         /* shouldn't happen */
-        return -1;
+        return;
       }
     } else {
       if (fuse_type == 0) {
@@ -353,7 +346,7 @@ void __xla_cpu_runtime_LibxsmmStub() {
             LIBXSMM_DNN_FUSEDBN_OPS_BNSCALE_ELTWISE_RELU;
       } else {
         /* shouldn't happen */
-        return -1;
+        return;
       }
     }
 
