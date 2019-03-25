@@ -1107,6 +1107,56 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
             << batchnorm_training->operand(i)->ToString();
   }
 
+  if (batchnorm_training->operand_count() != 3) {
+    return Status("Expected 3 operands, Found " +
+                  batchnorm_training->operand_count() + " operands");
+  }
+
+  HloInstruction* operand = batchnorm_training->mutable_operand(0);
+  HloInstruction* scale = batchnorm_training->mutable_operand(1);
+  HloInstruction* offset = batchnorm_training->mutable_operand(2);
+  const Shape operand_shape = operand->shape();
+
+  /*
+  extern void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
+    int N, int C, int H, int W, int stride_h, int stride_w,
+    const float* input_ptr, float* output_ptr, float offset, float scale,
+    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
+  */
+
+  llvm::Value* input_ptr = GetEmittedValueFor(operand);
+  llvm::Value* scale = GetEmittedValueFor(scale);
+  llvm::Value* offset = GetEmittedValueFor(offset);
+  int64 feature_index = batch_norm->feature_index();
+  const int64 N = operand_shape.dimensions(feature_index);
+  std::vector<int64> dimensions_without_feature;
+
+  for (int64 i = 0; i < ShapeUtil::Rank(operand_shape); ++i) {
+    if (i != feature_index) {
+      dimensions_without_feature.push_back(i);
+    }
+  }
+
+  if (dimensions_without_feature.size() != 3) {
+    return Status("Expected dimensions_without_feature = 3, Found " +
+                  dimensions_without_feature.size());
+  }
+
+  // default NHWC format
+  int64 C = dimensions_without_feature.at(0);
+  int64 W = dimensions_without_feature.at(1);
+  int64 H = dimensions_without_feature.at(2);
+  const Shape& target_shape = batchnorm_training->shape();
+
+  VLOG(2) << "N: " << N;
+  VLOG(2) << "H: " << H;
+  VLOG(2) << "W: " << W;
+  VLOG(2) << "C: " << C;
+  VLOG(2) << "input_ptr: " << llvm_ir::DumpToString(*input_ptr);
+  VLOG(2) << "scale: " << llvm_ir::DumpToString(*scale);
+  VLOG(2) << "offset: " << llvm_ir::DumpToString(*offset);
+  VLOG(2) << "target_shape: " << target_shape.ToString();
+
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, b_.getVoidTy()));
