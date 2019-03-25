@@ -1155,7 +1155,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "input_ptr: " << llvm_ir::DumpToString(*input_ptr);
   VLOG(2) << "scale: " << llvm_ir::DumpToString(*scale_ptr);
   VLOG(2) << "offset: " << llvm_ir::DumpToString(*offset_ptr);
-  VLOG(2) << "target_shape: " << target_shape.ToString();
+  VLOG(2) << "target_shape: " << target_shape;
 
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
