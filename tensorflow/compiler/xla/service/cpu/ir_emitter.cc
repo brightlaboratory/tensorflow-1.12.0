@@ -1108,7 +1108,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   }
 
   if (batchnorm_training->operand_count() != 3) {
-    String errorMessage = "Expected 3 operands, Found " +
+    string errorMessage = "Expected 3 operands, Found " +
                           batchnorm_training->operand_count() + " operands";
     return Status(errorMessage);
   }
@@ -1139,7 +1139,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   }
 
   if (dimensions_without_feature.size() != 3) {
-    String errorMessage = "Expected dimensions_without_feature = 3, Found " +
+    string errorMessage = "Expected dimensions_without_feature = 3, Found " +
                           dimensions_without_feature.size();
     return Status(errorMessage);
   }
