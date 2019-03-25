@@ -1125,8 +1125,8 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   */
 
   llvm::Value* input_ptr = GetEmittedValueFor(operand);
-  llvm::Value* scale = GetEmittedValueFor(scale);
-  llvm::Value* offset = GetEmittedValueFor(offset);
+  llvm::Value* scale_ptr = GetEmittedValueFor(scale);
+  llvm::Value* offset_ptr = GetEmittedValueFor(offset);
   int64 feature_index = batch_norm->feature_index();
   const int64 N = operand_shape.dimensions(feature_index);
   std::vector<int64> dimensions_without_feature;
@@ -1153,8 +1153,8 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "W: " << W;
   VLOG(2) << "C: " << C;
   VLOG(2) << "input_ptr: " << llvm_ir::DumpToString(*input_ptr);
-  VLOG(2) << "scale: " << llvm_ir::DumpToString(*scale);
-  VLOG(2) << "offset: " << llvm_ir::DumpToString(*offset);
+  VLOG(2) << "scale: " << llvm_ir::DumpToString(*scale_ptr);
+  VLOG(2) << "offset: " << llvm_ir::DumpToString(*offset_ptr);
   VLOG(2) << "target_shape: " << target_shape.ToString();
 
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
