@@ -1108,8 +1108,9 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   }
 
   if (batchnorm_training->operand_count() != 3) {
-    return Status("Expected 3 operands, Found " +
-                  batchnorm_training->operand_count() + " operands");
+    String errorMessage = "Expected 3 operands, Found " +
+                          batchnorm_training->operand_count() + " operands";
+    return Status(errorMessage);
   }
 
   HloInstruction* operand = batchnorm_training->mutable_operand(0);
@@ -1127,7 +1128,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   llvm::Value* input_ptr = GetEmittedValueFor(operand);
   llvm::Value* scale_ptr = GetEmittedValueFor(scale);
   llvm::Value* offset_ptr = GetEmittedValueFor(offset);
-  int64 feature_index = batch_norm->feature_index();
+  int64 feature_index = batchnorm_training->feature_index();
   const int64 N = operand_shape.dimensions(feature_index);
   std::vector<int64> dimensions_without_feature;
 
@@ -1138,8 +1139,9 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   }
 
   if (dimensions_without_feature.size() != 3) {
-    return Status("Expected dimensions_without_feature = 3, Found " +
-                  dimensions_without_feature.size());
+    String errorMessage = "Expected dimensions_without_feature = 3, Found " +
+                          dimensions_without_feature.size();
+    return Status(errorMessage);
   }
 
   // default NHWC format
