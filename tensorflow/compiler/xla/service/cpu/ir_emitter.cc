@@ -1109,8 +1109,9 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
 
   if (batchnorm_training->operand_count() != 3) {
     string errorMessage = "Expected 3 operands, Found " +
-                          batchnorm_training->operand_count() + " operands";
-    return Status(error::INVALID_ARGUMENT, errorMessage);
+                          std::to_string(batchnorm_training->operand_count()) +
+                          " operands";
+    return Status(tensorflow::error::INVALID_ARGUMENT, errorMessage);
   }
 
   HloInstruction* operand = batchnorm_training->mutable_operand(0);
@@ -1140,14 +1141,14 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
 
   if (dimensions_without_feature.size() != 3) {
     string errorMessage = "Expected dimensions_without_feature = 3, Found " +
-                          dimensions_without_feature.size();
-    return Status(error::INVALID_ARGUMENT, errorMessage);
+                          std::to_string(dimensions_without_feature.size());
+    return Status(tensorflow::error::INVALID_ARGUMENT, errorMessage);
   }
 
   // default NHWC format
-  int64 C = dimensions_without_feature.at(0);
-  int64 W = dimensions_without_feature.at(1);
-  int64 H = dimensions_without_feature.at(2);
+  int64 C = operand_shape.dimensions(dimensions_without_feature.at(0));
+  int64 W = operand_shape.dimensions(dimensions_without_feature.at(1));
+  int64 H = operand_shape.dimensions(dimensions_without_feature.at(2));
   const Shape& target_shape = batchnorm_training->shape();
 
   VLOG(2) << "N: " << N;
