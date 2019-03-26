@@ -1161,8 +1161,21 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "target_shape: " << target_shape;
 
   TF_RETURN_IF_ERROR(EmitTargetAddressForOp(batchnorm_training));
-  llvm::Value* output_ptr = GetEmittedValueFor(batchnorm_training);
-  VLOG(2) << "output_ptr: " << llvm_ir::DumpToString(*output_ptr);
+  llvm::Value* tuple_output_ptr = GetEmittedValueFor(batchnorm_training);
+  VLOG(2) << "tuple_output_ptr: " << llvm_ir::DumpToString(*tuple_output_ptr);
+
+  llvm::Value* expectval_ptr =
+      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, 0, &b_);
+
+  llvm::Value* rcpstddev_ptr =
+      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, 1, &b_);
+
+  llvm::Value* variance_ptr =
+      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, 2, &b_);
+
+  VLOG(2) << "expectval_ptr: " << llvm_ir::DumpToString(*expectval_ptr);
+  VLOG(2) << "rcpstddev_ptr: " << llvm_ir::DumpToString(*rcpstddev_ptr);
+  VLOG(2) << "variance_ptr: " << llvm_ir::DumpToString(*variance_ptr);
 
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
