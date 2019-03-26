@@ -1160,10 +1160,13 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "offset: " << llvm_ir::DumpToString(*offset_ptr);
   VLOG(2) << "target_shape: " << target_shape;
 
+  TF_RETURN_IF_ERROR(EmitTargetAddressForOp(batchnorm_training));
+  llvm::Value* output_ptr = GetEmittedValueFor(batchnorm_training);
+  VLOG(2) << "output_ptr: " << llvm_ir::DumpToString(*output_ptr);
+
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, b_.getVoidTy()));
-  TF_RETURN_IF_ERROR(EmitTargetAddressForOp(batchnorm_training));
   libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
   libxsmm_stub_func->setDoesNotThrow();
   libxsmm_stub_func->setOnlyAccessesArgMemory();
