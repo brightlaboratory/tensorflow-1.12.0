@@ -1164,14 +1164,17 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   llvm::Value* tuple_output_ptr = GetEmittedValueFor(batchnorm_training);
   VLOG(2) << "tuple_output_ptr: " << llvm_ir::DumpToString(*tuple_output_ptr);
 
+  int64 index = 0;
   llvm::Value* expectval_ptr =
-      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, 0, &b_);
+      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
+  index = 1;
   llvm::Value* rcpstddev_ptr =
-      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, 1, &b_);
+      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
+  index = 2;
   llvm::Value* variance_ptr =
-      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, 2, &b_);
+      llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
   VLOG(2) << "expectval_ptr: " << llvm_ir::DumpToString(*expectval_ptr);
   VLOG(2) << "rcpstddev_ptr: " << llvm_ir::DumpToString(*rcpstddev_ptr);
