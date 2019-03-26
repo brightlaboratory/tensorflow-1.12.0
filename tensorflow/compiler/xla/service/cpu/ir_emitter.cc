@@ -1130,7 +1130,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   llvm::Value* scale_ptr = GetEmittedValueFor(scale);
   llvm::Value* offset_ptr = GetEmittedValueFor(offset);
   int64 feature_index = batchnorm_training->feature_index();
-  const int64 N = operand_shape.dimensions(feature_index);
+  const int64 C = operand_shape.dimensions(feature_index);
   std::vector<int64> dimensions_without_feature;
 
   for (int64 i = 0; i < ShapeUtil::Rank(operand_shape); ++i) {
@@ -1146,9 +1146,9 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   }
 
   // default NHWC format
-  int64 C = operand_shape.dimensions(dimensions_without_feature.at(0));
-  int64 W = operand_shape.dimensions(dimensions_without_feature.at(1));
-  int64 H = operand_shape.dimensions(dimensions_without_feature.at(2));
+  int64 N = operand_shape.dimensions(dimensions_without_feature.at(0));
+  int64 H = operand_shape.dimensions(dimensions_without_feature.at(1));
+  int64 W = operand_shape.dimensions(dimensions_without_feature.at(2));
   const Shape& target_shape = batchnorm_training->shape();
 
   VLOG(2) << "N: " << N;
