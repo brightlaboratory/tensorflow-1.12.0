@@ -1119,13 +1119,6 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   HloInstruction* offset = batchnorm_training->mutable_operand(2);
   const Shape operand_shape = operand->shape();
 
-  /*
-  extern void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
-    int N, int C, int H, int W, int stride_h, int stride_w,
-    const float* input_ptr, float* output_ptr, float offset, float scale,
-    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
-  */
-
   llvm::Value* input_ptr = GetEmittedValueFor(operand);
   llvm::Value* scale_ptr = GetEmittedValueFor(scale);
   llvm::Value* offset_ptr = GetEmittedValueFor(offset);
@@ -1180,13 +1173,39 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "rcpstddev_ptr: " << llvm_ir::DumpToString(*rcpstddev_ptr);
   VLOG(2) << "variance_ptr: " << llvm_ir::DumpToString(*variance_ptr);
 
-  const char* fn_name = runtime::kLibxsmmStubSymbolName;
-  llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
+  /*
+extern void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
+int N, int C, int H, int W, int stride_h, int stride_w,
+const float* input_ptr, float* output_ptr, float offset, float scale,
+float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
+*/
+
+  const char* fn_name = runtime::kNaiveLibxmmFusedbatchnormFpSymbolName;
+  llvm::Function* libxsmm_naivefusedbatchnorm_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, b_.getVoidTy()));
-  libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
-  libxsmm_stub_func->setDoesNotThrow();
-  libxsmm_stub_func->setOnlyAccessesArgMemory();
-  Call(libxsmm_stub_func);
+  libxsmm_naivefusedbatchnorm_func->setCallingConv(llvm::CallingConv::C);
+  libxsmm_naivefusedbatchnorm_func->setDoesNotThrow();
+  libxsmm_naivefusedbatchnorm_func->setOnlyAccessesArgMemory();
+
+  int64 stride_h = 1;
+  int64 stride_w = 1;
+  Call(libxsmm_naivefusedbatchnorm_func,
+       {
+           b_.getInt64(N),
+           b_.getInt64(C),
+           b_.getInt64(H),
+           b_.getInt64(W),
+           b_.getInt64(stride_h),
+           b_.getInt64(stride_w),
+           BitCast(input_ptr, ir_ptr_type),
+           BitCast(output_ptr, ir_ptr_type),
+           BitCast(offset, b_.getFloatTy()),
+           BitCast(scale, b_.getFloatTy()),
+           BitCast(expectval_ptr, ir_ptr_type),
+           BitCast(rcpstddev_ptr, ir_ptr_type),
+           BitCast(variance_ptr, ir_ptr_type),
+       });
+
   return Status::OK();
 }
 

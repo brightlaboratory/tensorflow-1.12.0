@@ -110,6 +110,8 @@ extern const char* const kKeyValueSortF64SymbolName =
     "__xla_cpu_runtime_KeyValueSortF64";
 extern const char* const kLibxsmmStubSymbolName =
     "__xla_cpu_runtime_LibxsmmStub";
+extern const char* const kNaiveLibxmmFusedbatchnormFpSymbolName =
+    "__xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp";
 extern const char* const kXlaCpuRuntimeSymbolNamePrefix = "__xla_cpu_runtime_";
 }  // namespace runtime
 }  // namespace cpu

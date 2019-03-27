@@ -8,11 +8,26 @@
 #include <omp.h>
 #endif
 
-void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
+void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
     int N, int C, int H, int W, int stride_h, int stride_w,
     const float* input_ptr, float* output_ptr, float offset, float scale,
     float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr) {
   printf("Entering __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp\n");
+
+  printf("N = %d\n", N);
+  printf("C = %d\n", C);
+  printf("H = %d\n", H);
+  printf("W = %d\n", W);
+  printf("stride_h = %d\n", stride_h);
+  printf("stride_w = %d\n", stride_w);
+  printf("input_ptr = %p\n", input_ptr);
+  printf("output_ptr = %p\n", output_ptr);
+  printf("offset = %f\n", offset);
+  printf("scale = %f\n", scale);
+  printf("expectval_ptr = %p\n", expectval_ptr);
+  printf("rcpstddev_ptr = %p\n", rcpstddev_ptr);
+  printf("variance_ptr = %p\n", variance_ptr);
+  return;
 
   naive_fusedbatchnorm_t naive_param;
   naive_param.N = N;
