@@ -52,11 +52,11 @@ void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
 
   int i;
   for (i = 0; i < C; i++) {
-    naive_beta[i] = offset;
+    naive_beta[i] = offset[i];
   }
 
   for (i = 0; i < C; i++) {
-    naive_gamma[i] = scale;
+    naive_gamma[i] = scale[i];
   }
 
   naive_fusedbatchnorm_fp(&naive_param, input_ptr, output_ptr, input_add,
