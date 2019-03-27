@@ -1197,13 +1197,13 @@ float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
            b_.getInt64(W),
            b_.getInt64(stride_h),
            b_.getInt64(stride_w),
-           BitCast(input_ptr, ir_ptr_type),
-           BitCast(output_ptr, ir_ptr_type),
+           BitCast(input_ptr, b_.getFloatTy()->getPointerTo()),
+           BitCast(output_ptr, b_.getFloatTy()->getPointerTo()),
            BitCast(offset, b_.getFloatTy()),
            BitCast(scale, b_.getFloatTy()),
-           BitCast(output_ptr, ir_ptr_type),  // TODO
-           BitCast(rcpstddev_ptr, ir_ptr_type),
-           BitCast(variance_ptr, ir_ptr_type),
+           BitCast(output_ptr, b_.getFloatTy()->getPointerTo()),  // TODO
+           BitCast(rcpstddev_ptr, b_.getFloatTy()->getPointerTo()),
+           BitCast(variance_ptr, b_.getFloatTy()->getPointerTo()),
        });
 
   return Status::OK();
