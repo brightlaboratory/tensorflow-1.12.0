@@ -1199,8 +1199,8 @@ float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
            b_.getInt64(stride_w),
            BitCast(input_ptr, b_.getFloatTy()->getPointerTo()),
            BitCast(output_ptr, b_.getFloatTy()->getPointerTo()),
-           BitCast(offset_ptr, b_.getFloatTy()),
-           BitCast(scale_ptr, b_.getFloatTy()),
+           BitCast(offset_ptr, b_.getFloatTy()->getPointerTo()),
+           BitCast(scale_ptr, b_.getFloatTy()->getPointerTo()),
            BitCast(output_ptr, b_.getFloatTy()->getPointerTo()),  // TODO
            BitCast(rcpstddev_ptr, b_.getFloatTy()->getPointerTo()),
            BitCast(variance_ptr, b_.getFloatTy()->getPointerTo()),
