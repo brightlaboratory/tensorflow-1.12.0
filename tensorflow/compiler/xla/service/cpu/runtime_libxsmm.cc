@@ -99,7 +99,7 @@ void __xla_cpu_runtime_LibxsmmStub() {
   naive_rcpstddev =
       (float*)libxsmm_aligned_malloc(nFm * sizeof(float), 2097152);
   naive_variance = (float*)libxsmm_aligned_malloc(nFm * sizeof(float), 2097152);
-  __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
+  __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
       nImg, nFm, ifh, ifw, stride_h, stride_w, naive_input, naive_output,
       offset, scale, naive_expectval, naive_rcpstddev, naive_variance);
 

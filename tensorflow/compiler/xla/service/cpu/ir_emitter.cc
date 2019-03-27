@@ -1158,7 +1158,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "tuple_output_ptr: " << llvm_ir::DumpToString(*tuple_output_ptr);
 
   int64 index = 0;
-  llvm::Value* expectval_ptr =
+  llvm::Value* output_ptr =
       llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
   index = 1;
@@ -1201,7 +1201,7 @@ float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
            BitCast(output_ptr, ir_ptr_type),
            BitCast(offset, b_.getFloatTy()),
            BitCast(scale, b_.getFloatTy()),
-           BitCast(expectval_ptr, ir_ptr_type),
+           BitCast(output_ptr, ir_ptr_type),  // TODO
            BitCast(rcpstddev_ptr, ir_ptr_type),
            BitCast(variance_ptr, ir_ptr_type),
        });
