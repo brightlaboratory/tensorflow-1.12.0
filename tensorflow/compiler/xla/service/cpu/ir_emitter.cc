@@ -1176,13 +1176,15 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   const char* fn_name = runtime::kNaiveLibxmmFusedbatchnormFpSymbolName;
   llvm::Type* int64_type = b_.getInt64Ty();
   llvm::Type* float_ptr_type = b_.getFloatTy()->getPointerTo();
-  llvm::Function* libxsmm_naivefusedbatchnorm_func =
-      llvm::cast<llvm::Function>(module_->getOrInsertFunction(
-          fn_name, b_.getVoidTy(),
-          {int64_type, int64_type, int64_type, int64_type, int64_type,
-           int64_type, float_ptr_type, float_ptr_type, float_ptr_type,
-           float_ptr_type, float_ptr_type, float_ptr_type},
-          /*isVarArg=*/false));
+
+  llvm::FunctionType* fusedbatchnorm_type = llvm::FunctionType::get(
+      b_.getVoidTy(),
+      {int64_type, int64_type, int64_type, int64_type, int64_type, int64_type,
+       float_ptr_type, float_ptr_type, float_ptr_type, float_ptr_type,
+       float_ptr_type, float_ptr_type},
+      /*isVarArg=*/false);
+  llvm::Function* libxsmm_naivefusedbatchnorm_func = llvm::cast<llvm::Function>(
+      module_->getOrInsertFunction(fn_name, fusedbatchnorm_type));
   libxsmm_naivefusedbatchnorm_func->setCallingConv(llvm::CallingConv::C);
   libxsmm_naivefusedbatchnorm_func->setDoesNotThrow();
   libxsmm_naivefusedbatchnorm_func->setOnlyAccessesArgMemory();
