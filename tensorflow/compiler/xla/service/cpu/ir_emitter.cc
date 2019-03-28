@@ -1174,8 +1174,14 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "variance_ptr: " << llvm_ir::DumpToString(*variance_ptr);
 
   const char* fn_name = runtime::kNaiveLibxmmFusedbatchnormFpSymbolName;
-  llvm::Function* libxsmm_naivefusedbatchnorm_func = llvm::cast<llvm::Function>(
-      module_->getOrInsertFunction(fn_name, b_.getVoidTy()));
+  llvm::Type* int64_type = b_.getInt64Ty();
+  llvm::Type* float_ptr_type = b_.getFloatTy()->getPointerTo();
+  llvm::Function* libxsmm_naivefusedbatchnorm_func =
+      llvm::cast<llvm::Function>(module_->getOrInsertFunction(
+          fn_name, b_.getVoidTy(),
+          {int64_type, int64_type, int64_type, int64_type, int64_type,
+           int64_type, float_ptr_type, float_ptr_type, float_ptr_type,
+           float_ptr_type, float_ptr_type, float_ptr_type}));
   libxsmm_naivefusedbatchnorm_func->setCallingConv(llvm::CallingConv::C);
   libxsmm_naivefusedbatchnorm_func->setDoesNotThrow();
   libxsmm_naivefusedbatchnorm_func->setOnlyAccessesArgMemory();
@@ -1184,9 +1190,9 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   int64 stride_w = 1;
   /*
 extern void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
-    int N, int C, int H, int W, int stride_h, int stride_w,
-    const float* input_ptr, float* output_ptr, float* offset, float* scale,
-    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
+    int N, int C, int H, int W, int stride_h, int stride_w, float* input_ptr,
+    float* output_ptr, float* offset, float* scale, float* rcpstddev_ptr,
+    float* variance_ptr);
 */
   Call(libxsmm_naivefusedbatchnorm_func,
        {
@@ -1196,13 +1202,12 @@ extern void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
            b_.getInt64(W),
            b_.getInt64(stride_h),
            b_.getInt64(stride_w),
-           BitCast(input_ptr, b_.getFloatTy()->getPointerTo()),
-           BitCast(output_ptr, b_.getFloatTy()->getPointerTo()),
-           BitCast(offset_ptr, b_.getFloatTy()->getPointerTo()),
-           BitCast(scale_ptr, b_.getFloatTy()->getPointerTo()),
-           // BitCast(output_ptr, b_.getFloatTy()->getPointerTo()),  // TODO
-           BitCast(rcpstddev_ptr, b_.getFloatTy()->getPointerTo()),
-           BitCast(variance_ptr, b_.getFloatTy()->getPointerTo()),
+           BitCast(input_ptr, float_ptr_type),
+           BitCast(output_ptr, float_ptr_type),
+           BitCast(offset_ptr, float_ptr_type),
+           BitCast(scale_ptr, float_ptr_type),
+           BitCast(rcpstddev_ptr, float_ptr_type),
+           BitCast(variance_ptr, float_ptr_type),
        });
 
   /*
