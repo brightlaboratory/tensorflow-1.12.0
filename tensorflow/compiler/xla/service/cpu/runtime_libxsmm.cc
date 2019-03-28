@@ -8,8 +8,7 @@
 #include <omp.h>
 #endif
 
-TF_ATTRIBUTE_NO_SANITIZE_MEMORY void
-__xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
+void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
     int64 N, int64 C, int64 H, int64 W, int64 stride_h, int64 stride_w,
     float* input_ptr, float* output_ptr, float* offset, float* scale,
     float* rcpstddev_ptr, float* variance_ptr) {
