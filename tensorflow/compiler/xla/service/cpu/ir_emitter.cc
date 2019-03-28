@@ -1181,7 +1181,8 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
           fn_name, b_.getVoidTy(),
           {int64_type, int64_type, int64_type, int64_type, int64_type,
            int64_type, float_ptr_type, float_ptr_type, float_ptr_type,
-           float_ptr_type, float_ptr_type, float_ptr_type}));
+           float_ptr_type, float_ptr_type, float_ptr_type},
+          /*isVarArg=*/false));
   libxsmm_naivefusedbatchnorm_func->setCallingConv(llvm::CallingConv::C);
   libxsmm_naivefusedbatchnorm_func->setDoesNotThrow();
   libxsmm_naivefusedbatchnorm_func->setOnlyAccessesArgMemory();
