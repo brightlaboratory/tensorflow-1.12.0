@@ -12,9 +12,9 @@
 
 extern "C" {
 extern void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
-    int N, int C, int H, int W, int stride_h, int stride_w,
-    const float* input_ptr, float* output_ptr, float* offset, float* scale,
-    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
+    int N, int C, int H, int W, int stride_h, int stride_w, float* input_ptr,
+    float* output_ptr, float* offset, float* scale, float* rcpstddev_ptr,
+    float* variance_ptr);
 
 extern void __xla_cpu_runtime_LibxsmmStub();
 }
