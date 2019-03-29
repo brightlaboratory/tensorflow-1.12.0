@@ -8,9 +8,12 @@
 #include <omp.h>
 #endif
 
-void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(int64 N, int64 C, int64 H,
-                                                   int64 W, int64 stride_h,
-                                                   int64 stride_w) {
+#include "tensorflow/core/platform/dynamic_annotations.h"
+
+TF_ATTRIBUTE_NO_SANITIZE_MEMORY void
+__xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(int64 N, int64 C, int64 H,
+                                              int64 W, int64 stride_h,
+                                              int64 stride_w) {
   printf("Entering __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp\n");
 
   printf("N = %d\n", N);
