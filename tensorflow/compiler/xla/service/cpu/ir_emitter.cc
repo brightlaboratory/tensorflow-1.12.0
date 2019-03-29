@@ -1179,10 +1179,18 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
 
   llvm::FunctionType* fusedbatchnorm_type = llvm::FunctionType::get(
       b_.getVoidTy(),
+      {int64_type, int64_type, int64_type, int64_type, int64_type, int64_type},
+      /*isVarArg=*/false);
+
+  /*
+    llvm::FunctionType* fusedbatchnorm_type = llvm::FunctionType::get(
+      b_.getVoidTy(),
       {int64_type, int64_type, int64_type, int64_type, int64_type, int64_type,
        float_ptr_type, float_ptr_type, float_ptr_type, float_ptr_type,
        float_ptr_type, float_ptr_type},
-      /*isVarArg=*/false);
+      false);
+          */
+
   llvm::Function* libxsmm_naivefusedbatchnorm_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, fusedbatchnorm_type));
   libxsmm_naivefusedbatchnorm_func->setCallingConv(llvm::CallingConv::C);
@@ -1199,18 +1207,16 @@ extern void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
 */
   Call(libxsmm_naivefusedbatchnorm_func,
        {
-           b_.getInt64(N),
-           b_.getInt64(C),
-           b_.getInt64(H),
-           b_.getInt64(W),
-           b_.getInt64(stride_h),
-           b_.getInt64(stride_w),
+           b_.getInt64(N), b_.getInt64(C), b_.getInt64(H), b_.getInt64(W),
+           b_.getInt64(stride_h), b_.getInt64(stride_w),
+           /*
            BitCast(input_ptr, float_ptr_type),
            BitCast(output_ptr, float_ptr_type),
            BitCast(offset_ptr, float_ptr_type),
            BitCast(scale_ptr, float_ptr_type),
            BitCast(rcpstddev_ptr, float_ptr_type),
            BitCast(variance_ptr, float_ptr_type),
+                   */
        });
 
   /*

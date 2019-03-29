@@ -8,7 +8,22 @@
 #include <omp.h>
 #endif
 
-void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
+void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(int64 N, int64 C, int64 H,
+                                                   int64 W, int64 stride_h,
+                                                   int64 stride_w) {
+  printf("Entering __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp\n");
+
+  printf("N = %d\n", N);
+  printf("C = %d\n", C);
+  printf("H = %d\n", H);
+  printf("W = %d\n", W);
+  printf("stride_h = %d\n", stride_h);
+  printf("stride_w = %d\n", stride_w);
+
+  return;
+}
+
+void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp2(
     int64 N, int64 C, int64 H, int64 W, int64 stride_h, int64 stride_w,
     float* input_ptr, float* output_ptr, float* offset, float* scale,
     float* rcpstddev_ptr, float* variance_ptr) {
