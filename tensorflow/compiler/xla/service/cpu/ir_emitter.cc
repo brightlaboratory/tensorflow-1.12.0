@@ -1195,7 +1195,8 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
       module_->getOrInsertFunction(fn_name, fusedbatchnorm_type));
   libxsmm_naivefusedbatchnorm_func->setCallingConv(llvm::CallingConv::C);
   libxsmm_naivefusedbatchnorm_func->setDoesNotThrow();
-  libxsmm_naivefusedbatchnorm_func->setOnlyAccessesArgMemory();
+  // libxsmm_naivefusedbatchnorm_func->setOnlyAccessesArgMemory();
+  libxsmm_naivefusedbatchnorm_func->setOnlyAccessesInaccessibleMemOrArgMem();
 
   int64 stride_h = 1;
   int64 stride_w = 1;
