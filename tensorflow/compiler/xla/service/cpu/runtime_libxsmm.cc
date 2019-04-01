@@ -38,8 +38,16 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   naive_param.fuse_type = 0;
 
   float* rcpstddev_ptr = (float*)malloc(sizeof(float) * C);
-  naive_fusedbatchnorm_fp(&naive_param, input_ptr, output_ptr, NULL, offset,
-                          scale, expectval_ptr, rcpstddev_ptr, variance_ptr);
+
+  float* input_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
+  float* output_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
+  naive_copy_NHWC_to_NCHW(input_ptr, input_ptr_NCHW, N, H, W, C);
+  naive_fusedbatchnorm_fp(&naive_param, input_ptr_NCHW, output_ptr_NCHW, NULL,
+                          offset, scale, expectval_ptr, rcpstddev_ptr,
+                          variance_ptr);
+  naive_copy_NCHW_to_NHWC(output_ptr_NCHW, output_ptr, N, H, W, C);
+  free(input_ptr_NCHW);
+  free(output_ptr_NCHW);
   free(rcpstddev_ptr);
 
   printf("offset:");
