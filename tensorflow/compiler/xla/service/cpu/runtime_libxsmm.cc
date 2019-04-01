@@ -70,33 +70,37 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
     printf("%f ", variance_ptr[i]);
   }
 
-  printf("input:\n");
-  for (int n = 0; n < N; n++) {
-    for (int h = 0; h < H; h++) {
-      for (int w = 0; w < W; w++) {
-        for (int c = 0; c < C; c++) {
-          printf("%.2f ",
-                 LIBXSMM_VLA_ACCESS(4, input_ptr, n, h, w, c, H, W, C));
+  {
+    printf("input:\n");
+    LIBXSMM_VLA_DECL(4, const float, input, input_ptr, H, W, C);
+    for (int n = 0; n < N; n++) {
+      for (int h = 0; h < H; h++) {
+        for (int w = 0; w < W; w++) {
+          for (int c = 0; c < C; c++) {
+            printf("%.2f ", LIBXSMM_VLA_ACCESS(4, input, n, h, w, c, H, W, C));
+          }
         }
       }
     }
+
+    printf("\n");
   }
 
-  printf("\n");
-
-  printf("output:\n");
-  for (int n = 0; n < N; n++) {
-    for (int h = 0; h < H; h++) {
-      for (int w = 0; w < W; w++) {
-        for (int c = 0; c < C; c++) {
-          printf("%.2f ",
-                 LIBXSMM_VLA_ACCESS(4, output_ptr, n, h, w, c, H, W, C));
+  {
+    printf("output:\n");
+    LIBXSMM_VLA_DECL(4, const float, output, output_ptr, H, W, C);
+    for (int n = 0; n < N; n++) {
+      for (int h = 0; h < H; h++) {
+        for (int w = 0; w < W; w++) {
+          for (int c = 0; c < C; c++) {
+            printf("%.2f ", LIBXSMM_VLA_ACCESS(4, output, n, h, w, c, H, W, C));
+          }
         }
       }
     }
-  }
 
-  printf("\n");
+    printf("\n");
+  }
 
   printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
 }
