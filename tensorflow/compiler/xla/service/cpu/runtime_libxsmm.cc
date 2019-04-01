@@ -71,10 +71,10 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   }
 
   printf("input:\n");
-  for (n = 0; n < N; n++) {
-    for (h = 0; h < H; h++) {
-      for (w = 0; w < W; w++) {
-        for (c = 0; c < C; c++) {
+  for (int n = 0; n < N; n++) {
+    for (int h = 0; h < H; h++) {
+      for (int w = 0; w < W; w++) {
+        for (int c = 0; c < C; c++) {
           printf("%.2f ",
                  LIBXSMM_VLA_ACCESS(4, input_ptr, n, h, w, c, H, W, C));
         }
@@ -85,10 +85,10 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   printf("\n");
 
   printf("output:\n");
-  for (n = 0; n < N; n++) {
-    for (h = 0; h < H; h++) {
-      for (w = 0; w < W; w++) {
-        for (c = 0; c < C; c++) {
+  for (int n = 0; n < N; n++) {
+    for (int h = 0; h < H; h++) {
+      for (int w = 0; w < W; w++) {
+        for (int c = 0; c < C; c++) {
           printf("%.2f ",
                  LIBXSMM_VLA_ACCESS(4, output_ptr, n, h, w, c, H, W, C));
         }
