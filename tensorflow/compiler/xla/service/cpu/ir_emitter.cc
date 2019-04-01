@@ -1119,6 +1119,13 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   HloInstruction* offset = batchnorm_training->mutable_operand(2);
   const Shape operand_shape = operand->shape();
 
+  /*
+  extern void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
+    int N, int C, int H, int W, int stride_h, int stride_w,
+    const float* input_ptr, float* output_ptr, float offset, float scale,
+    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
+  */
+
   llvm::Value* input_ptr = GetEmittedValueFor(operand);
   llvm::Value* scale_ptr = GetEmittedValueFor(scale);
   llvm::Value* offset_ptr = GetEmittedValueFor(offset);
@@ -1158,7 +1165,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "tuple_output_ptr: " << llvm_ir::DumpToString(*tuple_output_ptr);
 
   int64 index = 0;
-  llvm::Value* output_ptr =
+  llvm::Value* expectval_ptr =
       llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
   index = 1;
@@ -1169,64 +1176,22 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   llvm::Value* variance_ptr =
       llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
-  VLOG(2) << "output_ptr: " << llvm_ir::DumpToString(*output_ptr);
+  VLOG(2) << "expectval_ptr: " << llvm_ir::DumpToString(*expectval_ptr);
   VLOG(2) << "rcpstddev_ptr: " << llvm_ir::DumpToString(*rcpstddev_ptr);
   VLOG(2) << "variance_ptr: " << llvm_ir::DumpToString(*variance_ptr);
 
-  const char* fn_name = runtime::kNaiveLibxmmFusedbatchnormFpSymbolName;
-  llvm::Type* int64_type = b_.getInt64Ty();
-  llvm::Type* float_ptr_type = b_.getFloatTy()->getPointerTo();
-
-  llvm::FunctionType* fusedbatchnorm_type = llvm::FunctionType::get(
-      b_.getVoidTy(),
-      {int64_type, int64_type, int64_type, int64_type, int64_type, int64_type},
-      /*isVarArg=*/false);
-
-  /*
     llvm::FunctionType* fusedbatchnorm_type = llvm::FunctionType::get(
       b_.getVoidTy(),
-      {int64_type, int64_type, int64_type, int64_type, int64_type, int64_type,
-       float_ptr_type, float_ptr_type, float_ptr_type, float_ptr_type,
-       float_ptr_type, float_ptr_type},
-      false);
-          */
+      {b_.getInt64Ty()},
+      /*isVarArg=*/false);
 
-  llvm::Function* libxsmm_naivefusedbatchnorm_func = llvm::cast<llvm::Function>(
+  const char* fn_name = runtime::kLibxsmmStubSymbolName;
+  llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, fusedbatchnorm_type));
-  libxsmm_naivefusedbatchnorm_func->setCallingConv(llvm::CallingConv::C);
-  libxsmm_naivefusedbatchnorm_func->setDoesNotThrow();
-  // libxsmm_naivefusedbatchnorm_func->setOnlyAccessesArgMemory();
-  libxsmm_naivefusedbatchnorm_func->setOnlyAccessesInaccessibleMemOrArgMem();
-
-  int64 stride_h = 1;
-  int64 stride_w = 1;
-  /*
-extern void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(
-    int N, int C, int H, int W, int stride_h, int stride_w, float* input_ptr,
-    float* output_ptr, float* offset, float* scale, float* rcpstddev_ptr,
-    float* variance_ptr);
-*/
-  Call(libxsmm_naivefusedbatchnorm_func,
-       {
-           b_.getInt64(N), b_.getInt64(C), b_.getInt64(H), b_.getInt64(W),
-           b_.getInt64(stride_h), b_.getInt64(stride_w),
-           /*
-           BitCast(input_ptr, float_ptr_type),
-           BitCast(output_ptr, float_ptr_type),
-           BitCast(offset_ptr, float_ptr_type),
-           BitCast(scale_ptr, float_ptr_type),
-           BitCast(rcpstddev_ptr, float_ptr_type),
-           BitCast(variance_ptr, float_ptr_type),
-                   */
-       });
-
-  /*
-    call void @__xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(i64 128, i64 64,
-    i64 256, i64 256, i64 1, i64 1, float* %383, float* %384, float* %385,
-    float* %386, float* %387, float* %388, float* %389)
-
-  */
-
+  libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
+  libxsmm_stub_func->setDoesNotThrow();
+  libxsmm_stub_func->setOnlyAccessesArgMemory();
+  Call(libxsmm_stub_func, {b_.getInt64(N)});
   return Status::OK();
 }
 

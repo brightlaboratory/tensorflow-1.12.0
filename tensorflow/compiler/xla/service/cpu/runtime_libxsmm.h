@@ -9,21 +9,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "tensorflow/core/platform/types.h"
 using tensorflow::int64;
 
 extern "C" {
-extern void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp(int64 N, int64 C,
-                                                          int64 H, int64 W,
-                                                          int64 stride_h,
-                                                          int64 stride_w);
+extern void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
+    int N, int C, int H, int W, int stride_h, int stride_w,
+    const float* input_ptr, float* output_ptr, float offset, float scale,
+    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
 
-extern void __xla_cpu_runtime_NaiveLibxmmFusedbatchnormFp2(
-    int64 N, int64 C, int64 H, int64 W, int64 stride_h, int64 stride_w,
-    float* input_ptr, float* output_ptr, float* offset, float* scale,
-    float* rcpstddev_ptr, float* variance_ptr);
-
-extern void __xla_cpu_runtime_LibxsmmStub();
+extern void __xla_cpu_runtime_LibxsmmStub(int64);
 }
 
 /******************************************************************************
