@@ -1180,6 +1180,8 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "rcpstddev_ptr: " << llvm_ir::DumpToString(*rcpstddev_ptr);
   VLOG(2) << "variance_ptr: " << llvm_ir::DumpToString(*variance_ptr);
 
+  llvm::Type* int64_type = b_.getInt64Ty();
+  llvm::Type* float_ptr_type = b_.getFloatTy()->getPointerTo();
   llvm::FunctionType* fusedbatchnorm_type = llvm::FunctionType::get(
       b_.getVoidTy(),
       {int64_type, int64_type, int64_type, int64_type, int64_type, int64_type,
@@ -1193,6 +1195,9 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
   libxsmm_stub_func->setDoesNotThrow();
   libxsmm_stub_func->setOnlyAccessesArgMemory();
+
+  int64 stride_h = 1;
+  int64 stride_w = 1;
   Call(libxsmm_stub_func, {
                               b_.getInt64(N),
                               b_.getInt64(C),
