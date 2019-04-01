@@ -14,10 +14,6 @@
 using tensorflow::int64;
 
 extern "C" {
-extern void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
-    int N, int C, int H, int W, int stride_h, int stride_w,
-    const float* input_ptr, float* output_ptr, float offset, float scale,
-    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
 
 extern void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
                                           int64 stride_h, int64 stride_w,
@@ -58,6 +54,7 @@ extern void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
 /* Alexander Heinecke (Intel Corp.)
 ******************************************************************************/
 
+#define _OPENMP
 #include <float.h>
 #include <math.h>
 #include <stdio.h>

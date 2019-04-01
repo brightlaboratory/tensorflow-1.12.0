@@ -1169,7 +1169,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
       llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
   index = 1;
-  llvm::Value* rcpstddev_ptr =
+  llvm::Value* expectval_ptr =
       llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
   index = 2;
@@ -1177,7 +1177,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
       llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
   VLOG(2) << "output_ptr: " << llvm_ir::DumpToString(*output_ptr);
-  VLOG(2) << "rcpstddev_ptr: " << llvm_ir::DumpToString(*rcpstddev_ptr);
+  VLOG(2) << "expectval_ptr: " << llvm_ir::DumpToString(*expectval_ptr);
   VLOG(2) << "variance_ptr: " << llvm_ir::DumpToString(*variance_ptr);
 
   llvm::Type* int64_type = b_.getInt64Ty();
@@ -1209,7 +1209,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
                               BitCast(output_ptr, float_ptr_type),
                               BitCast(offset_ptr, float_ptr_type),
                               BitCast(scale_ptr, float_ptr_type),
-                              BitCast(rcpstddev_ptr, float_ptr_type),
+                              BitCast(expectval_ptr, float_ptr_type),
                               BitCast(variance_ptr, float_ptr_type),
                           });
   return Status::OK();
