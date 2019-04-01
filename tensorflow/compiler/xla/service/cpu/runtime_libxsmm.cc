@@ -40,6 +40,6 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   float* rcpstddev_ptr = (float*)malloc(sizeof(float) * C);
   naive_fusedbatchnorm_fp(&naive_param, input_ptr, output_ptr, NULL, offset,
                           scale, expectval_ptr, rcpstddev_ptr, variance_ptr);
-
+  free(rcpstddev_ptr);
   printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
 }
