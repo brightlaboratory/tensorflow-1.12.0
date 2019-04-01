@@ -69,5 +69,19 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   printf("scale = %p\n", scale);
   printf("rcpstddev_ptr = %p\n", rcpstddev_ptr);
   printf("variance_ptr = %p\n", variance_ptr);
+
+  naive_fusedbatchnorm_t naive_param;
+  naive_param.N = N;
+  naive_param.C = C;
+  naive_param.H = H;
+  naive_param.W = W;
+  naive_param.stride_h = stride_h;
+  naive_param.stride_w = stride_w;
+  naive_param.norm_type = 0;
+  naive_param.fuse_type = 0;
+
+  naive_fusedbatchnorm_fp(&naive_param, input_ptr, output_ptr, NULL, offset,
+                          scale, expectval_ptr, rcpstddev_ptr, variance_ptr);
+
   printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
 }
