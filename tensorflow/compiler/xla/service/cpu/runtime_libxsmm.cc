@@ -51,42 +51,23 @@ void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
   printf("Returning from __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp\n");
 }
 
-void __xla_cpu_runtime_LibxsmmStub(int64 XX) {
+void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
+                                   int64 stride_h, int64 stride_w,
+                                   float* input_ptr, float* output_ptr,
+                                   float* offset, float* scale,
+                                   float* rcpstddev_ptr, float* variance_ptr) {
   printf("Entering __xla_cpu_runtime_LibxsmmStub\n");
-  printf("XX = %ld\n", XX);
-  int ifw = 14;   /* input width, "W" */
-  int ifh = 20;   /* input height, "H" */
-  int nImg = 32;  /* mini-batch size, "N" */
-  int nFm = 256;  /* number of input feature maps, "C" */
-  int stride = 1; /* stride when accessing inputs */
-  int stride_w = stride;
-  int stride_h = stride;
-  int ofh, ofw;
-  ofh = ifh / stride_h;
-  ofw = ifw / stride_w;
-
-  float* naive_input;
-  naive_input = (float*)libxsmm_aligned_malloc(
-      nImg * nFm * ifh * ifw * sizeof(float), 2097152);
-  init_buf(naive_input, nImg * nFm * ifh * ifw, 0, 0);
-
-  float* naive_output;
-  naive_output = (float*)libxsmm_aligned_malloc(
-      nImg * nFm * ofh * ofw * sizeof(float), 2097152);
-  init_buf(naive_output, nImg * nFm * ofh * ofw, 0, 0);
-
-  float offset = 0;
-  float scale = 1.0;
-
-  float *naive_expectval, *naive_rcpstddev, *naive_variance;
-  naive_expectval =
-      (float*)libxsmm_aligned_malloc(nFm * sizeof(float), 2097152);
-  naive_rcpstddev =
-      (float*)libxsmm_aligned_malloc(nFm * sizeof(float), 2097152);
-  naive_variance = (float*)libxsmm_aligned_malloc(nFm * sizeof(float), 2097152);
-  __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
-      nImg, nFm, ifh, ifw, stride_h, stride_w, naive_input, naive_output,
-      offset, scale, naive_expectval, naive_rcpstddev, naive_variance);
-
+  printf("N = %d\n", N);
+  printf("C = %d\n", C);
+  printf("H = %d\n", H);
+  printf("W = %d\n", W);
+  printf("stride_h = %d\n", stride_h);
+  printf("stride_w = %d\n", stride_w);
+  printf("input_ptr = %p\n", input_ptr);
+  printf("output_ptr = %p\n", output_ptr);
+  printf("offset = %p\n", offset);
+  printf("scale = %p\n", scale);
+  printf("rcpstddev_ptr = %p\n", rcpstddev_ptr);
+  printf("variance_ptr = %p\n", variance_ptr);
   printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
 }

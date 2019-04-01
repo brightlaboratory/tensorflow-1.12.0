@@ -1165,7 +1165,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   VLOG(2) << "tuple_output_ptr: " << llvm_ir::DumpToString(*tuple_output_ptr);
 
   int64 index = 0;
-  llvm::Value* expectval_ptr =
+  llvm::Value* output_ptr =
       llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
   index = 1;
@@ -1176,13 +1176,15 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   llvm::Value* variance_ptr =
       llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_);
 
-  VLOG(2) << "expectval_ptr: " << llvm_ir::DumpToString(*expectval_ptr);
+  VLOG(2) << "output_ptr: " << llvm_ir::DumpToString(*output_ptr);
   VLOG(2) << "rcpstddev_ptr: " << llvm_ir::DumpToString(*rcpstddev_ptr);
   VLOG(2) << "variance_ptr: " << llvm_ir::DumpToString(*variance_ptr);
 
-    llvm::FunctionType* fusedbatchnorm_type = llvm::FunctionType::get(
+  llvm::FunctionType* fusedbatchnorm_type = llvm::FunctionType::get(
       b_.getVoidTy(),
-      {b_.getInt64Ty()},
+      {int64_type, int64_type, int64_type, int64_type, int64_type, int64_type,
+       float_ptr_type, float_ptr_type, float_ptr_type, float_ptr_type,
+       float_ptr_type, float_ptr_type},
       /*isVarArg=*/false);
 
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
@@ -1191,7 +1193,20 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
   libxsmm_stub_func->setDoesNotThrow();
   libxsmm_stub_func->setOnlyAccessesArgMemory();
-  Call(libxsmm_stub_func, {b_.getInt64(N)});
+  Call(libxsmm_stub_func, {
+                              b_.getInt64(N),
+                              b_.getInt64(C),
+                              b_.getInt64(H),
+                              b_.getInt64(W),
+                              b_.getInt64(stride_h),
+                              b_.getInt64(stride_w),
+                              BitCast(input_ptr, float_ptr_type),
+                              BitCast(output_ptr, float_ptr_type),
+                              BitCast(offset_ptr, float_ptr_type),
+                              BitCast(scale_ptr, float_ptr_type),
+                              BitCast(rcpstddev_ptr, float_ptr_type),
+                              BitCast(variance_ptr, float_ptr_type),
+                          });
   return Status::OK();
 }
 
