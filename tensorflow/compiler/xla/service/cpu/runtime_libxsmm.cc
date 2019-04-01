@@ -41,5 +41,26 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   naive_fusedbatchnorm_fp(&naive_param, input_ptr, output_ptr, NULL, offset,
                           scale, expectval_ptr, rcpstddev_ptr, variance_ptr);
   free(rcpstddev_ptr);
+
+  printf("offset:");
+  for (int i = 0; i < C; i++) {
+    printf("%f ", offset[i]);
+  }
+
+  printf("scale:");
+  for (int i = 0; i < C; i++) {
+    printf("%f ", scale[i]);
+  }
+
+  printf("means:");
+  for (int i = 0; i < C; i++) {
+    printf("%f ", expectval_ptr[i]);
+  }
+
+  printf("variance:");
+  for (int i = 0; i < C; i++) {
+    printf("%f ", variance_ptr[i]);
+  }
+
   printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
 }
