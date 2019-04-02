@@ -41,8 +41,8 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   float* input_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
   float* output_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
 
-  if (rcpstddev_ptr == NULL || input_ptr_NCHW =
-          NULL || output_ptr_NCHW == NULL) {
+  if (rcpstddev_ptr == NULL || input_ptr_NCHW == NULL ||
+      output_ptr_NCHW == NULL) {
     printf("Memory could not be allocated\n");
     exit(1);
   }
