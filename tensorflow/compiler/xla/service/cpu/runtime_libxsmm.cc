@@ -50,6 +50,7 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   free(output_ptr_NCHW);
   free(rcpstddev_ptr);
 
+  /*
   printf("offset:");
   for (int i = 0; i < C; i++) {
     printf("%f ", offset[i]);
@@ -102,5 +103,6 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
     printf("\n");
   }
 
+  */
   printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
 }
