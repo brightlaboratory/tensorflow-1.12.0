@@ -1163,18 +1163,29 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   TF_RETURN_IF_ERROR(EmitTargetAddressForOp(batchnorm_training));
   llvm::Value* tuple_output_ptr = GetEmittedValueFor(batchnorm_training);
   VLOG(2) << "tuple_output_ptr: " << llvm_ir::DumpToString(*tuple_output_ptr);
+  VLOG(2) << "target_shape[0]: "
+          << ShapeUtil::GetTupleElementShape(target_shape, 0);
+  VLOG(2) << "target_shape[1]: "
+          << ShapeUtil::GetTupleElementShape(target_shape, 1);
+  VLOG(2) << "target_shape[2]: "
+          << ShapeUtil::GetTupleElementShape(target_shape, 2);
 
-  int64 index = 0;
-  llvm::Value* output_ptr =
-      Load(llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_));
+  // The following code attempts to get the correct pointers to the tuple
+  // elements
+  TF_ASSIGN_OR_RETURN(BufferAllocation::Slice output_slice,
+                      assignment_.GetUniqueSlice(batchnorm_training, {0}));
+  llvm::Value* output_ptr = EmitBufferPointer(
+      output_slice, ShapeUtil::GetTupleElementShape(target_shape, 0));
 
-  index = 1;
-  llvm::Value* expectval_ptr =
-      Load(llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_));
+  TF_ASSIGN_OR_RETURN(BufferAllocation::Slice expectval_slice,
+                      assignment_.GetUniqueSlice(batchnorm_training, {1}));
+  llvm::Value* expectval_ptr = EmitBufferPointer(
+      expectval_slice, ShapeUtil::GetTupleElementShape(target_shape, 1));
 
-  index = 2;
-  llvm::Value* variance_ptr =
-      Load(llvm_ir::EmitBufferIndexingGEP(tuple_output_ptr, index, &b_));
+  TF_ASSIGN_OR_RETURN(BufferAllocation::Slice variance_slice,
+                      assignment_.GetUniqueSlice(batchnorm_training, {2}));
+  llvm::Value* variance_ptr = EmitBufferPointer(
+      variance_slice, ShapeUtil::GetTupleElementShape(target_shape, 2));
 
   VLOG(2) << "output_ptr: " << llvm_ir::DumpToString(*output_ptr);
   VLOG(2) << "expectval_ptr: " << llvm_ir::DumpToString(*expectval_ptr);
