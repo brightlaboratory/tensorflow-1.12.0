@@ -620,13 +620,15 @@ StatusOr<bool> BatchNormExpander::Run(HloModule* module) {
     }
   }
 
-  if (!smartFusion) {
-    for (auto* comp : module->MakeNonfusionComputations()) {
-      if (BatchNormExpanderVisitor::Run(comp, rewrite_training_op_,
-                                        rewrite_inference_op_,
-                                        rewrite_grad_op_)) {
-        changed = true;
-      }
+  for (auto* comp : module->MakeNonfusionComputations()) {
+    if (smartFusion) {
+      rewrite_training_op_ = false;
+    }
+
+    if (BatchNormExpanderVisitor::Run(comp, rewrite_training_op_,
+                                      rewrite_inference_op_,
+                                      rewrite_grad_op_)) {
+      changed = true;
     }
   }
 
