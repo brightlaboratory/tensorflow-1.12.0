@@ -38,9 +38,21 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   naive_param.fuse_type = 0;
 
   float* rcpstddev_ptr = (float*)malloc(sizeof(float) * C);
-
   float* input_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
   float* output_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
+
+  if (rcpstddev_ptr == NULL || input_ptr_NCHW =
+          NULL || output_ptr_NCHW == NULL) {
+    printf("Memory could not be allocated\n");
+    exit(1);
+  }
+
+  if (input_ptr == NULL || output_ptr == NULL || offset == NULL ||
+      scale == NULL || expectval_ptr == NULL || variance_ptr == NULL) {
+    printf("Input arguments are NULL\n");
+    exit(1);
+  }
+
   naive_copy_NHWC_to_NCHW(input_ptr, input_ptr_NCHW, N, H, W, C);
   naive_fusedbatchnorm_fp(&naive_param, input_ptr_NCHW, output_ptr_NCHW, NULL,
                           offset, scale, expectval_ptr, rcpstddev_ptr,
