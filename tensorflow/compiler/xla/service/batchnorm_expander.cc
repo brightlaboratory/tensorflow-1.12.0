@@ -612,7 +612,7 @@ StatusOr<bool> BatchNormExpander::Run(HloModule* module) {
     const char* env = getenv("TF_CPU_SMART_FUSION");
 
     if (env && strlen(env) > 0) {
-      VLOG(0) << "TF_CPU_SMART_FUSION: " << env << "\n";
+      VLOG(2) << "TF_CPU_SMART_FUSION: " << env << "\n";
 
       if (strcmp(env, "TRUE") == 0) {
         smartFusion = true;
