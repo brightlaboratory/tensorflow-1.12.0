@@ -1027,7 +1027,7 @@ Status MarkForCompilationPass::RunImpl(
       const char* env = getenv("TF_AGGRESSIVE_MARK_FOR_COMPILATION");
 
       if (env && strlen(env) > 0) {
-        VLOG(0) << "TF_AGGRESSIVE_MARK_FOR_COMPILATION: " << env << "\n";
+        VLOG(1) << "TF_AGGRESSIVE_MARK_FOR_COMPILATION: " << env << "\n";
 
         if (strcmp(env, "TRUE") == 0) {
           marked_for_compilation = true;

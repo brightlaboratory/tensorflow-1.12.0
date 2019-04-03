@@ -12,20 +12,24 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
                                    int64 stride_h, int64 stride_w,
                                    float* input_ptr, float* output_ptr,
                                    float* offset, float* scale,
-                                   float* expectval_ptr, float* variance_ptr) {
-  printf("Entering __xla_cpu_runtime_LibxsmmStub\n");
-  printf("N = %d\n", N);
-  printf("C = %d\n", C);
-  printf("H = %d\n", H);
-  printf("W = %d\n", W);
-  printf("stride_h = %d\n", stride_h);
-  printf("stride_w = %d\n", stride_w);
-  printf("input_ptr = %p\n", input_ptr);
-  printf("output_ptr = %p\n", output_ptr);
-  printf("offset = %p\n", offset);
-  printf("scale = %p\n", scale);
-  printf("expectval_ptr = %p\n", expectval_ptr);
-  printf("variance_ptr = %p\n", variance_ptr);
+                                   float* expectval_ptr, float* variance_ptr,
+                                   int64 print_debug_info) {
+  if (print_debug_info) {
+    printf("Entering __xla_cpu_runtime_LibxsmmStub\n");
+    printf("N = %d\n", N);
+    printf("C = %d\n", C);
+    printf("H = %d\n", H);
+    printf("W = %d\n", W);
+    printf("stride_h = %d\n", stride_h);
+    printf("stride_w = %d\n", stride_w);
+    printf("input_ptr = %p\n", input_ptr);
+    printf("output_ptr = %p\n", output_ptr);
+    printf("offset = %p\n", offset);
+    printf("scale = %p\n", scale);
+    printf("expectval_ptr = %p\n", expectval_ptr);
+    printf("variance_ptr = %p\n", variance_ptr);
+    printf("print_debug_info = %d\n", print_debug_info);
+  }
 
   naive_fusedbatchnorm_t naive_param;
   naive_param.N = N;
@@ -90,7 +94,8 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
       for (int h = 0; h < H; h++) {
         for (int w = 0; w < W; w++) {
           for (int c = 0; c < C; c++) {
-            printf("%.2f ", LIBXSMM_VLA_ACCESS(4, input, n, h, w, c, H, W, C));
+            printf("%.2f ", LIBXSMM_VLA_ACCESS(4, input, n, h, w, c, H, W,
+  C));
           }
         }
       }
@@ -106,7 +111,8 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
       for (int h = 0; h < H; h++) {
         for (int w = 0; w < W; w++) {
           for (int c = 0; c < C; c++) {
-            printf("%.2f ", LIBXSMM_VLA_ACCESS(4, output, n, h, w, c, H, W, C));
+            printf("%.2f ", LIBXSMM_VLA_ACCESS(4, output, n, h, w, c, H, W,
+  C));
           }
         }
       }
@@ -116,5 +122,8 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
   }
 
   */
-  printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
+
+  if (print_debug_info) {
+    printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
+  }
 }

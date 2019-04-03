@@ -1302,7 +1302,8 @@ LIBXSMM_INLINE void naive_pooling_bp(naive_pooling_t* param, float* dinput_ptr,
 LIBXSMM_INLINE void naive_fusedbatchnorm_fp(
     naive_fusedbatchnorm_t* param, const float* input_ptr, float* output_ptr,
     const float* input_add_ptr, const float* beta_ptr, const float* gamma_ptr,
-    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr) {
+    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr,
+    int64 print_debug_info) {
   const int nImg = param->N;
   const int nFm = param->C;
   const int ifh = param->H;

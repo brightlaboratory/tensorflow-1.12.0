@@ -1190,7 +1190,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
       b_.getVoidTy(),
       {int64_type, int64_type, int64_type, int64_type, int64_type, int64_type,
        float_ptr_type, float_ptr_type, float_ptr_type, float_ptr_type,
-       float_ptr_type, float_ptr_type},
+       float_ptr_type, float_ptr_type, int64_type},
       /*isVarArg=*/false);
 
   const char* fn_name = runtime::kLibxsmmStubSymbolName;
@@ -1202,6 +1202,19 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
 
   int64 stride_h = 1;
   int64 stride_w = 1;
+  int64 print_debug_info = 0;
+
+  {
+    const char* env = getenv("TF_LIBXSMM_PRINT_DEBUG_INFO");
+    if (env && strlen(env) > 0) {
+      VLOG(1) << "TF_LIBXSMM_PRINT_DEBUG_INFO: " << env << "\n";
+
+      if (strcmp(env, "TRUE") == 0) {
+        print_debug_info = 1;
+      }
+    }
+  }
+
   Call(libxsmm_stub_func, {
                               b_.getInt64(N),
                               b_.getInt64(C),
@@ -1215,6 +1228,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
                               BitCast(scale_ptr, float_ptr_type),
                               BitCast(expectval_ptr, float_ptr_type),
                               BitCast(variance_ptr, float_ptr_type),
+                              b_.getInt64(print_debug_info),
                           });
 
   llvm_ir::EmitTuple(GetIrArrayFor(batchnorm_training),
