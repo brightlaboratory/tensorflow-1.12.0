@@ -1119,13 +1119,6 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
   HloInstruction* offset = batchnorm_training->mutable_operand(2);
   const Shape operand_shape = operand->shape();
 
-  /*
-  extern void __xla_cpu_runtime_naive_libxmm_fusedbatchnorm_fp(
-    int N, int C, int H, int W, int stride_h, int stride_w,
-    const float* input_ptr, float* output_ptr, float offset, float scale,
-    float* expectval_ptr, float* rcpstddev_ptr, float* variance_ptr);
-  */
-
   llvm::Value* input_ptr = GetEmittedValueFor(operand);
   llvm::Value* scale_ptr = GetEmittedValueFor(scale);
   llvm::Value* offset_ptr = GetEmittedValueFor(offset);
@@ -1223,6 +1216,9 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
                               BitCast(expectval_ptr, float_ptr_type),
                               BitCast(variance_ptr, float_ptr_type),
                           });
+
+  llvm_ir::EmitTuple(GetIrArrayFor(batchnorm_training),
+                     {output_ptr, expectval_ptr, variance_ptr}, &b_, module_);
   return Status::OK();
 }
 
