@@ -217,6 +217,7 @@ bool RegisterKnownJITSymbols() {
   REGISTER_CPU_RUNTIME_SYMBOL(KeyValueSortU64);
   REGISTER_CPU_RUNTIME_SYMBOL(KeyValueSortF64);
   REGISTER_CPU_RUNTIME_SYMBOL(LibxsmmStub);
+  REGISTER_CPU_RUNTIME_SYMBOL(LibxsmmDnnFusedBatchnorm);
 
   registry->Register("__gnu_f2h_ieee", reinterpret_cast<void*>(__gnu_f2h_ieee));
   registry->Register("__gnu_h2f_ieee", reinterpret_cast<void*>(__gnu_h2f_ieee));

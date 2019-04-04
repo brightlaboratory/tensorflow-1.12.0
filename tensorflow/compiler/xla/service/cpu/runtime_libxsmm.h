@@ -19,12 +19,10 @@ extern void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     float* input_ptr, float* output_ptr, float* offset, float* scale,
     float* expectval_ptr, float* variance_ptr, int64 print_debug_info);
 
-/*
 extern void __xla_cpu_runtime_LibxsmmStub(
     int64 N, int64 C, int64 H, int64 W, int64 stride_h, int64 stride_w,
     float* input_ptr, float* output_ptr, float* offset, float* scale,
     float* rcpstddev_ptr, float* variance_ptr, int64 print_debug_info);
-        */
 }
 
 /******************************************************************************
