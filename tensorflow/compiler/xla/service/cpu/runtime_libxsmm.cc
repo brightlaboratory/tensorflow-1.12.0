@@ -26,10 +26,18 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   }
 
 #if defined(_OPENMP)
+  const int tid = omp_get_thread_num();
+#else
+  const int tid = 0;
+#endif
+
+#if defined(_OPENMP)
   int nThreads = omp_get_max_threads(); /* number of threads */
 #else
   int nThreads = 1; /* number of threads */
 #endif
+
+  printf("nThreads = %d\n", nThreads);
 
   float *input_libxsmm, *output_libxsmm;
   float *beta_libxsmm, *gamma_libxsmm, *expectval_libxsmm, *rcpstddev_libxsmm,
@@ -202,7 +210,6 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_tensor(libxsmm_input));
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_tensor(libxsmm_output));
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_tensor(libxsmm_beta));
-  CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_tensor(libxsmm_delbeta));
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_tensor(libxsmm_gamma));
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_tensor(libxsmm_expectval));
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_tensor(libxsmm_rcpstddev));
