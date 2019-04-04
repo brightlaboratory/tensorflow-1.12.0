@@ -1193,7 +1193,7 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
        float_ptr_type, float_ptr_type, int64_type},
       /*isVarArg=*/false);
 
-  const char* fn_name = runtime::kLibxsmmStubSymbolName;
+  const char* fn_name = runtime::kLibxsmmDnnFusedBatchnormSymbolName;
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, fusedbatchnorm_type));
   libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);

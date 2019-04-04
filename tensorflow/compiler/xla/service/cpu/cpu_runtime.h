@@ -77,7 +77,7 @@ extern const char* const kKeyValueSortS64SymbolName;
 extern const char* const kKeyValueSortU64SymbolName;
 extern const char* const kKeyValueSortF64SymbolName;
 extern const char* const kLibxsmmStubSymbolName;
-extern const char* const kNaiveLibxmmFusedbatchnormFpSymbolName;
+extern const char* const kLibxsmmDnnFusedBatchnormSymbolName;
 
 // All symbol names for XLA CPU runtime functions need to start with this
 // prefix.
