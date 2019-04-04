@@ -25,6 +25,14 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("Entering __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm\n");
   }
 
+  float* input_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
+  float* output_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
+
+  if (input_ptr_NCHW == NULL || output_ptr_NCHW == NULL) {
+    printf("Memory could not be allocated\n");
+    exit(1);
+  }
+
 #if defined(_OPENMP)
   const int tid = omp_get_thread_num();
 #else
@@ -151,8 +159,9 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
      own external to the library */
   copy_buf(offset, beta_libxsmm, C);
   copy_buf(scale, gamma_libxsmm, C);
-  CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyin_tensor(libxsmm_input, (void*)input_ptr,
-                                               LIBXSMM_DNN_TENSOR_FORMAT_NHWC));
+  naive_copy_NHWC_to_NCHW(input_ptr, input_ptr_NCHW, N, H, W, C);
+  CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyin_tensor(
+      libxsmm_input, (void*)input_ptr_NCHW, LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
 
   /* bind buffers and filter to handle */
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_fusedbatchnorm_bind_tensor(
@@ -187,7 +196,8 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
                                         LIBXSMM_DNN_COMPUTE_KIND_FWD, 0, tid);
 
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyout_tensor(
-      libxsmm_output, (void*)output_ptr, LIBXSMM_DNN_TENSOR_FORMAT_NHWC));
+      libxsmm_output, (void*)output_ptr_NCHW, LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
+  naive_copy_NCHW_to_NHWC(output_ptr_NCHW, output_ptr, N, H, W, C);
   /* clean-up */
   CHKERR_LIBXSMM_DNN(
       libxsmm_dnn_fusedbatchnorm_release_scratch(libxsmm_handle));
@@ -223,6 +233,8 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   libxsmm_free(expectval_libxsmm);
   libxsmm_free(rcpstddev_libxsmm);
   libxsmm_free(variance_libxsmm);
+  free(input_ptr_NCHW);
+  free(output_ptr_NCHW);
 
   if (print_debug_info) {
     printf("Returning from __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm\n");
