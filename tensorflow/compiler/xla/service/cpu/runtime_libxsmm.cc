@@ -93,6 +93,7 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   fusedbatchnorm_desc.datatype_stats = LIBXSMM_DNN_DATATYPE_F32;
   fusedbatchnorm_desc.buffer_format = LIBXSMM_DNN_TENSOR_FORMAT_LIBXSMM;
   fusedbatchnorm_desc.fuse_order = LIBXSMM_DNN_FUSEDBN_ORDER_BN_ELTWISE_RELU;
+  fusedbatchnorm_desc.fuse_ops = LIBXSMM_DNN_FUSEDBN_OPS_BN;
 
   libxsmm_handle =
       libxsmm_dnn_create_fusedbatchnorm(fusedbatchnorm_desc, &status);
