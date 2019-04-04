@@ -108,8 +108,8 @@ extern const char* const kKeyValueSortU64SymbolName =
     "__xla_cpu_runtime_KeyValueSortU64";
 extern const char* const kKeyValueSortF64SymbolName =
     "__xla_cpu_runtime_KeyValueSortF64";
-extern const char* const kLibxsmmStubSymbolName =
-    "__xla_cpu_runtime_LibxsmmStub";
+// extern const char* const kLibxsmmStubSymbolName =
+//   "__xla_cpu_runtime_LibxsmmStub";
 extern const char* const kLibxsmmDnnFusedBatchnormSymbolName =
     "__xla_cpu_runtime_LibxsmmDnnFusedBatchnorm";
 extern const char* const kXlaCpuRuntimeSymbolNamePrefix = "__xla_cpu_runtime_";
