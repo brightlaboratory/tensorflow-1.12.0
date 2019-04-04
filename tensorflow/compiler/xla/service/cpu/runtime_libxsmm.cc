@@ -346,4 +346,4 @@ void __xla_cpu_runtime_LibxsmmStub(int64 N, int64 C, int64 H, int64 W,
     printf("Returning from __xla_cpu_runtime_LibxsmmStub\n");
   }
 }
-* /
+*/
