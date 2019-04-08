@@ -34,18 +34,14 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   }
 
 #if defined(_OPENMP)
-  const int tid = omp_get_thread_num();
-#else
-  const int tid = 0;
-#endif
-
-#if defined(_OPENMP)
   int nThreads = omp_get_max_threads(); /* number of threads */
 #else
   int nThreads = 1; /* number of threads */
 #endif
 
-  printf("nThreads = %d\n", nThreads);
+  if (print_debug_info) {
+    printf("nThreads = %d\n", nThreads);
+  }
 
   float *input_libxsmm, *output_libxsmm;
   float *beta_libxsmm, *gamma_libxsmm, *expectval_libxsmm, *rcpstddev_libxsmm,
@@ -62,6 +58,12 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   rcpstddev_libxsmm =
       (float*)libxsmm_aligned_malloc(C * sizeof(float), 2097152);
   variance_libxsmm = (float*)libxsmm_aligned_malloc(C * sizeof(float), 2097152);
+
+  if (!input_libxsmm || !output_libxsmm || !beta_libxsmm || !gamma_libxsmm ||
+      !expectval_libxsmm || !rcpstddev_libxsmm || !variance_libxsmm) {
+    printf("Memory could not be allocated for libxsmm data structures\n");
+    exit(1);
+  }
 
   libxsmm_dnn_fusedbatchnorm_desc fusedbatchnorm_desc;
   libxsmm_dnn_fusedbatchnorm* libxsmm_handle;
@@ -100,6 +102,10 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   CHKERR_LIBXSMM_DNN(status);
 
   /* setup LIBXSMM buffers */
+  if (print_debug_info) {
+    printf("Setting up LIBXSMM buffers\n");
+  }
+
   libxsmm_layout = libxsmm_dnn_fusedbatchnorm_create_tensor_datalayout(
       libxsmm_handle, LIBXSMM_DNN_REGULAR_INPUT, &status);
   CHKERR_LIBXSMM_DNN(status);
@@ -155,16 +161,32 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   CHKERR_LIBXSMM_DNN(status);
   libxsmm_dnn_destroy_tensor_datalayout(libxsmm_layout);
 
+  if (print_debug_info) {
+    printf("Done setting up LIBXSMM buffers\n");
+  }
+
   /* copy in data to LIBXSMM format */
   /* we can also use the layout functions and set the data on our
      own external to the library */
+  if (print_debug_info) {
+    printf("Copying in data to LIBXSMM format\n");
+  }
+
   copy_buf(offset, beta_libxsmm, C);
   copy_buf(scale, gamma_libxsmm, C);
   naive_copy_NHWC_to_NCHW(input_ptr, input_ptr_NCHW, N, H, W, C);
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyin_tensor(
       libxsmm_input, (void*)input_ptr_NCHW, LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
 
+  if (print_debug_info) {
+    printf("Done copying in data to LIBXSMM format\n");
+  }
+
   /* bind buffers and filter to handle */
+  if (print_debug_info) {
+    printf("Binding buffers and filter to handle\n");
+  }
+
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_fusedbatchnorm_bind_tensor(
       libxsmm_handle, libxsmm_input, LIBXSMM_DNN_REGULAR_INPUT));
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_fusedbatchnorm_bind_tensor(
@@ -180,26 +202,76 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_fusedbatchnorm_bind_tensor(
       libxsmm_handle, libxsmm_variance, LIBXSMM_DNN_CHANNEL_VARIANCE));
 
+  if (print_debug_info) {
+    printf("Done binding buffers and filter to handle\n");
+  }
+
   /* let's allocate and bind scratch */
+  if (print_debug_info) {
+    printf("Allocating and binding scratch\n");
+  }
+
   void* scratch;
   size_t scratch_size = 0;
   scratch_size =
       libxsmm_dnn_fusedbatchnorm_get_scratch_size(libxsmm_handle, &status);
+  if (print_debug_info) {
+    printf("scratch_size = %d\n", scratch_size);
+  }
+
   CHKERR_LIBXSMM_DNN(status);
   scratch = libxsmm_aligned_scratch(scratch_size, 2097152);
   CHKERR_LIBXSMM_DNN(
       libxsmm_dnn_fusedbatchnorm_bind_scratch(libxsmm_handle, scratch));
+  if (print_debug_info) {
+    printf("Done allocating and binding scratch\n");
+  }
+
   /* set scratch to bogus to make sure that libxsmm takes care of zeroing
    * internally */
   init_buf((float*)scratch, scratch_size / 4, 0, 0);
 
-  libxsmm_dnn_fusedbatchnorm_execute_st(libxsmm_handle,
-                                        LIBXSMM_DNN_COMPUTE_KIND_FWD, 0, tid);
+  if (print_debug_info) {
+    printf("Calling libxsmm_dnn_fusedbatchnorm_execute_st\n");
+  }
+
+#if defined(_OPENMP)
+#pragma omp parallel
+#endif
+  {
+#if defined(_OPENMP)
+    const int tid = omp_get_thread_num();
+#else
+    const int tid = 0;
+#endif
+    if (print_debug_info) {
+      printf("tid = %d\n", tid);
+    }
+
+    CHKERR_LIBXSMM_DNN(libxsmm_dnn_fusedbatchnorm_execute_st(
+        libxsmm_handle, LIBXSMM_DNN_COMPUTE_KIND_FWD, 0, tid));
+  }
+
+  if (print_debug_info) {
+    printf("Returned from libxsmm_dnn_fusedbatchnorm_execute_st\n");
+  }
+
+  if (print_debug_info) {
+    printf("Copying out output\n");
+  }
 
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyout_tensor(
       libxsmm_output, (void*)output_ptr_NCHW, LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
   naive_copy_NCHW_to_NHWC(output_ptr_NCHW, output_ptr, N, H, W, C);
+
+  if (print_debug_info) {
+    printf("Done copying out output\n");
+  }
   /* clean-up */
+  if (print_debug_info) {
+    printf("Cleaning up\n");
+  }
+
   CHKERR_LIBXSMM_DNN(
       libxsmm_dnn_fusedbatchnorm_release_scratch(libxsmm_handle));
   libxsmm_free(scratch);
