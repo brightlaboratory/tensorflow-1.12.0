@@ -42,8 +42,10 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("print_debug_info = %d\n", print_debug_info);
   }
 
-  float* input_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
-  float* output_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
+  float* input_ptr_NCHW =
+      (float*)libxsmm_aligned_malloc(N * C * H * W * sizeof(float), 2097152);
+  float* output_ptr_NCHW =
+      (float*)libxsmm_aligned_malloc(N * C * H * W * sizeof(float), 2097152);
 
   if (input_ptr_NCHW == NULL || output_ptr_NCHW == NULL) {
     printf("Memory could not be allocated\n");
@@ -211,7 +213,8 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
 
   if (print_debug_info) {
     printf(
-        "Calling: libxsmm_dnn_copyin_tensor(input_ptr, (void*)input_ptr_NCHW, "
+        "Calling: libxsmm_dnn_copyin_tensor(libxsmm_input, "
+        "(void*)input_ptr_NCHW, "
         "LIBXSMM_DNN_TENSOR_FORMAT_NCHW)\n ");
   }
 
