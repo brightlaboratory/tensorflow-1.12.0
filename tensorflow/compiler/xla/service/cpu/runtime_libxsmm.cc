@@ -42,6 +42,29 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("print_debug_info = %d\n", print_debug_info);
   }
 
+  if (print_debug_info) {
+#if defined(_OPENMP)
+#pragma omp parallel
+#endif
+    {
+#if defined(_OPENMP)
+      const int tid = omp_get_thread_num();
+#else
+      const int tid = 0;
+#endif
+      if (print_debug_info) {
+        printf("First tid = %d\n", tid);
+      }
+
+      printf("Second tid = %d\n", tid);
+    }
+  }
+
+  if (print_debug_info) {
+#pragma omp parallel
+    { printf("Third tid = %d\n", omp_get_thread_num()); }
+  }
+
   float* input_ptr_NCHW =
       (float*)libxsmm_aligned_malloc(N * C * H * W * sizeof(float), 2097152);
   float* output_ptr_NCHW =
