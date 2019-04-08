@@ -349,8 +349,8 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   libxsmm_free(expectval_libxsmm);
   libxsmm_free(rcpstddev_libxsmm);
   libxsmm_free(variance_libxsmm);
-  free(input_ptr_NCHW);
-  free(output_ptr_NCHW);
+  libxsmm_free(input_ptr_NCHW);
+  libxsmm_free(output_ptr_NCHW);
 
   if (print_debug_info) {
     printf("Returning from __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm\n");
