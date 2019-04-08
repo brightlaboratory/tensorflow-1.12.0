@@ -25,6 +25,23 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("Entering __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm\n");
   }
 
+  if (print_debug_info) {
+    printf("Entering __xla_cpu_runtime_LibxsmmStub\n");
+    printf("N = %d\n", N);
+    printf("C = %d\n", C);
+    printf("H = %d\n", H);
+    printf("W = %d\n", W);
+    printf("stride_h = %d\n", stride_h);
+    printf("stride_w = %d\n", stride_w);
+    printf("input_ptr = %p\n", input_ptr);
+    printf("output_ptr = %p\n", output_ptr);
+    printf("offset = %p\n", offset);
+    printf("scale = %p\n", scale);
+    printf("expectval_ptr = %p\n", expectval_ptr);
+    printf("variance_ptr = %p\n", variance_ptr);
+    printf("print_debug_info = %d\n", print_debug_info);
+  }
+
   float* input_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
   float* output_ptr_NCHW = (float*)malloc(sizeof(float) * N * H * W * C);
 
@@ -172,11 +189,34 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("Copying in data to LIBXSMM format\n");
   }
 
+  if (print_debug_info) {
+    printf("Calling: copy_buf(offset, beta_libxsmm, C)\n");
+  }
+
   copy_buf(offset, beta_libxsmm, C);
+
+  if (print_debug_info) {
+    printf("Calling: copy_buf(scale, gamma_libxsmm, C)\n");
+  }
+
   copy_buf(scale, gamma_libxsmm, C);
+
+  if (print_debug_info) {
+    printf(
+        "Calling:  naive_copy_NHWC_to_NCHW(input_ptr, input_ptr_NCHW, N, H, W, "
+        "C)\n");
+  }
+
   naive_copy_NHWC_to_NCHW(input_ptr, input_ptr_NCHW, N, H, W, C);
-  CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyin_tensor(
-      libxsmm_input, (void*)input_ptr_NCHW, LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
+
+  if (print_debug_info) {
+    printf(
+        "Calling: libxsmm_dnn_copyin_tensor(input_ptr, (void*)input_ptr_NCHW, "
+        "LIBXSMM_DNN_TENSOR_FORMAT_NCHW)\n ");
+  }
+
+  CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyin_tensor(input_ptr, (void*)input_ptr_NCHW,
+                                               LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
 
   if (print_debug_info) {
     printf("Done copying in data to LIBXSMM format\n");
