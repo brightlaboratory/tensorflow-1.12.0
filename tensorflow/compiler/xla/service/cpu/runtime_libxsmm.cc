@@ -215,8 +215,8 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
         "LIBXSMM_DNN_TENSOR_FORMAT_NCHW)\n ");
   }
 
-  CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyin_tensor(input_ptr, (void*)input_ptr_NCHW,
-                                               LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
+  CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyin_tensor(
+      libxsmm_input, (void*)input_ptr_NCHW, LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
 
   if (print_debug_info) {
     printf("Done copying in data to LIBXSMM format\n");
