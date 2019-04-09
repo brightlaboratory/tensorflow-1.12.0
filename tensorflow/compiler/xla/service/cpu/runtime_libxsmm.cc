@@ -383,7 +383,10 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
       for (int h = 0; h < H; h++) {
         for (int w = 0; w < W; w++) {
           for (int c = 0; c < C; c++) {
-            printf("%.2f ", LIBXSMM_VLA_ACCESS(4, output, n, h, w, c, H, W, C));
+            if (n == 0 || n == N - 1) {
+              printf("%.2f ",
+                     LIBXSMM_VLA_ACCESS(4, output, n, h, w, c, H, W, C));
+            }
           }
         }
       }
