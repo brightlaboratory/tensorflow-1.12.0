@@ -26,7 +26,6 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   }
 
   if (print_debug_info) {
-    printf("Entering __xla_cpu_runtime_LibxsmmStub\n");
     printf("N = %d\n", N);
     printf("C = %d\n", C);
     printf("H = %d\n", H);
@@ -80,16 +79,6 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     { printf("Third tid = %d\n", omp_get_thread_num()); }
   }
 
-  float* input_ptr_NCHW =
-      (float*)libxsmm_aligned_malloc(N * C * H * W * sizeof(float), 2097152);
-  float* output_ptr_NCHW =
-      (float*)libxsmm_aligned_malloc(N * C * H * W * sizeof(float), 2097152);
-
-  if (input_ptr_NCHW == NULL || output_ptr_NCHW == NULL) {
-    printf("Memory could not be allocated\n");
-    exit(1);
-  }
-
 #if defined(_OPENMP)
   int nThreads = omp_get_max_threads(); /* number of threads */
 #else
@@ -100,14 +89,11 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("nThreads = %d\n", nThreads);
   }
 
-  float *input_libxsmm, *output_libxsmm;
   float *beta_libxsmm, *gamma_libxsmm, *expectval_libxsmm, *rcpstddev_libxsmm,
       *variance_libxsmm;
 
-  input_libxsmm =
-      (float*)libxsmm_aligned_malloc(N * C * H * W * sizeof(float), 2097152);
-  output_libxsmm =
-      (float*)libxsmm_aligned_malloc(N * C * H * W * sizeof(float), 2097152);
+  // TODO: We can directly use scale and offset pointers instead of allocating
+  // memory for them afresh
   beta_libxsmm = (float*)libxsmm_aligned_malloc(C * sizeof(float), 2097152);
   gamma_libxsmm = (float*)libxsmm_aligned_malloc(C * sizeof(float), 2097152);
   expectval_libxsmm =
@@ -116,8 +102,8 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
       (float*)libxsmm_aligned_malloc(C * sizeof(float), 2097152);
   variance_libxsmm = (float*)libxsmm_aligned_malloc(C * sizeof(float), 2097152);
 
-  if (!input_libxsmm || !output_libxsmm || !beta_libxsmm || !gamma_libxsmm ||
-      !expectval_libxsmm || !rcpstddev_libxsmm || !variance_libxsmm) {
+  if (!beta_libxsmm || !gamma_libxsmm || !expectval_libxsmm ||
+      !rcpstddev_libxsmm || !variance_libxsmm) {
     printf("Memory could not be allocated for libxsmm data structures\n");
     exit(1);
   }
@@ -384,15 +370,27 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_tensor(libxsmm_variance));
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_destroy_fusedbatchnorm(libxsmm_handle));
 
-  libxsmm_free(input_libxsmm);
-  libxsmm_free(output_libxsmm);
   libxsmm_free(beta_libxsmm);
   libxsmm_free(gamma_libxsmm);
   libxsmm_free(expectval_libxsmm);
   libxsmm_free(rcpstddev_libxsmm);
   libxsmm_free(variance_libxsmm);
-  libxsmm_free(input_ptr_NCHW);
-  libxsmm_free(output_ptr_NCHW);
+
+  if (print_debug_info) {
+    printf("output:\n");
+    LIBXSMM_VLA_DECL(4, const float, output, output_ptr, H, W, C);
+    for (int n = 0; n < N; n++) {
+      for (int h = 0; h < H; h++) {
+        for (int w = 0; w < W; w++) {
+          for (int c = 0; c < C; c++) {
+            printf("%.2f ", LIBXSMM_VLA_ACCESS(4, output, n, h, w, c, H, W, C));
+          }
+        }
+      }
+    }
+
+    printf("\n");
+  }
 
   if (print_debug_info) {
     printf("Returning from __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm\n");
