@@ -228,11 +228,12 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
 
   if (print_debug_info) {
     printf(
-        "Calling:  naive_copy_NHWC_to_NCHW(input_ptr, input_ptr_NCHW, N, H, W, "
+        "Calling:  naive_copy_NHWC_to_NCHW2(input_ptr, input_ptr_NCHW, N, H, "
+        "W, "
         "C)\n");
   }
 
-  naive_copy_NHWC_to_NCHW(input_ptr, input_ptr_NCHW, N, H, W, C);
+  naive_copy_NHWC_to_NCHW2(input_ptr, input_ptr_NCHW, N, H, W, C);
 
   if (print_debug_info) {
     printf(
@@ -306,9 +307,9 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
 #endif
   {
 #if defined(_OPENMP)
-    const int tid = omp_get_thread_num();
+    int tid = omp_get_thread_num();
 #else
-    const int tid = 0;
+    int tid = 0;
 #endif
     if (print_debug_info) {
       printf("tid = %d\n", tid);
@@ -328,7 +329,7 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
 
   CHKERR_LIBXSMM_DNN(libxsmm_dnn_copyout_tensor(
       libxsmm_output, (void*)output_ptr_NCHW, LIBXSMM_DNN_TENSOR_FORMAT_NCHW));
-  naive_copy_NCHW_to_NHWC(output_ptr_NCHW, output_ptr, N, H, W, C);
+  naive_copy_NCHW_to_NHWC2(output_ptr_NCHW, output_ptr, N, H, W, C);
 
   if (print_debug_info) {
     printf("Done copying out output\n");

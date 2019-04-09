@@ -493,6 +493,24 @@ LIBXSMM_INLINE void naive_copy_NCHW_to_NHWC(const float* nchw, float* nhwc,
   }
 }
 
+LIBXSMM_INLINE void naive_copy_NCHW_to_NHWC2(const float* nchw, float* nhwc,
+                                             int N, int H, int W, int C) {
+  float* output = nhwc;
+  LIBXSMM_VLA_DECL(4, const float, input, nchw, C, H, W);
+  int n, h, w, c;
+
+  for (n = 0; n < N; n++) {
+    for (h = 0; h < H; h++) {
+      for (w = 0; w < W; w++) {
+        for (c = 0; c < C; c++) {
+          output[n * H * W * C + h * W * C + w * C + c] =
+              LIBXSMM_VLA_ACCESS(4, input, n, c, h, w, C, H, W);
+        }
+      }
+    }
+  }
+}
+
 LIBXSMM_INLINE void naive_copy_NHWC_to_NCHW(const float* nhwc, float* nchw,
                                             int N, int H, int W, int C) {
   LIBXSMM_VLA_DECL(4, float, output, nchw, C, H, W);
@@ -505,6 +523,24 @@ LIBXSMM_INLINE void naive_copy_NHWC_to_NCHW(const float* nhwc, float* nchw,
         for (c = 0; c < C; c++) {
           LIBXSMM_VLA_ACCESS(4, output, n, c, h, w, C, H, W) =
               LIBXSMM_VLA_ACCESS(4, input, n, h, w, c, H, W, C);
+        }
+      }
+    }
+  }
+}
+
+LIBXSMM_INLINE void naive_copy_NHWC_to_NCHW2(const float* nhwc, float* nchw,
+                                             int N, int H, int W, int C) {
+  LIBXSMM_VLA_DECL(4, float, output, nchw, C, H, W);
+  const float* input = nhwc;
+  int n, h, w, c;
+
+  for (n = 0; n < N; n++) {
+    for (h = 0; h < H; h++) {
+      for (w = 0; w < W; w++) {
+        for (c = 0; c < C; c++) {
+          LIBXSMM_VLA_ACCESS(4, output, n, c, h, w, C, H, W) =
+              input[n * H * W * C + h * W * C + w * C + c];
         }
       }
     }
