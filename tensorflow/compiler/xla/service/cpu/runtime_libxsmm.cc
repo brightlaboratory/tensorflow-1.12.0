@@ -42,6 +42,21 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("print_debug_info = %d\n", print_debug_info);
   }
 
+  int alignment = 16;
+  if (((unsigned long)input_ptr & (alignment - 1)) != 0) {
+    printf("The input_ptr is not %d byte aligned\n", alignment);
+    exit(1);
+  } else {
+    printf("The input_ptr IS %d byte aligned\n", alignment);
+  }
+
+  if (((unsigned long)output_ptr & (alignment - 1)) != 0) {
+    printf("The output_ptr is not %d byte aligned\n", alignment);
+    exit(1);
+  } else {
+    printf("The output_ptr IS %d byte aligned\n", alignment);
+  }
+
   if (print_debug_info) {
 #if defined(_OPENMP)
 #pragma omp parallel
@@ -151,16 +166,14 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   libxsmm_layout = libxsmm_dnn_fusedbatchnorm_create_tensor_datalayout(
       libxsmm_handle, LIBXSMM_DNN_REGULAR_INPUT, &status);
   CHKERR_LIBXSMM_DNN(status);
-  libxsmm_input =
-      libxsmm_dnn_link_tensor(libxsmm_layout, input_libxsmm, &status);
+  libxsmm_input = libxsmm_dnn_link_tensor(libxsmm_layout, input_ptr, &status);
   CHKERR_LIBXSMM_DNN(status);
   libxsmm_dnn_destroy_tensor_datalayout(libxsmm_layout);
 
   libxsmm_layout = libxsmm_dnn_fusedbatchnorm_create_tensor_datalayout(
       libxsmm_handle, LIBXSMM_DNN_REGULAR_OUTPUT, &status);
   CHKERR_LIBXSMM_DNN(status);
-  libxsmm_output =
-      libxsmm_dnn_link_tensor(libxsmm_layout, output_libxsmm, &status);
+  libxsmm_output = libxsmm_dnn_link_tensor(libxsmm_layout, output_ptr, &status);
   CHKERR_LIBXSMM_DNN(status);
   libxsmm_dnn_destroy_tensor_datalayout(libxsmm_layout);
 
@@ -226,6 +239,7 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
 
   copy_buf(scale, gamma_libxsmm, C);
 
+  /*
   if (print_debug_info) {
     printf(
         "Calling:  naive_copy_NHWC_to_NCHW2(input_ptr, input_ptr_NCHW, N, H, "
@@ -249,6 +263,7 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("Done copying in data to LIBXSMM format\n");
   }
 
+  */
   /* bind buffers and filter to handle */
   if (print_debug_info) {
     printf("Binding buffers and filter to handle\n");
@@ -323,6 +338,7 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("Returned from libxsmm_dnn_fusedbatchnorm_execute_st\n");
   }
 
+  /*
   if (print_debug_info) {
     printf("Copying out output\n");
   }
@@ -334,6 +350,8 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   if (print_debug_info) {
     printf("Done copying out output\n");
   }
+  */
+
   /* clean-up */
   if (print_debug_info) {
     printf("Cleaning up\n");
