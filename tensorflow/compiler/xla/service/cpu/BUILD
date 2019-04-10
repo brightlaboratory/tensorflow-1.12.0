@@ -580,7 +580,7 @@ cc_library(
     name = "runtime_libxsmm",
     srcs = ["runtime_libxsmm.cc"],
     hdrs = ["runtime_libxsmm.h"],
-    copts = runtime_copts(),
+    copts = runtime_copts() + ["-fopenmp"],
     visibility = ["//visibility:public"],
     deps = [
         "//tensorflow/compiler/xla:executable_run_options",
