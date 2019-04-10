@@ -45,20 +45,26 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   if (((unsigned long)input_ptr & (alignment - 1)) != 0) {
     printf("The input_ptr is not %d byte aligned\n", alignment);
     exit(1);
-  } else {
+  } else if (print_debug_info) {
     printf("The input_ptr IS %d byte aligned\n", alignment);
   }
 
   if (((unsigned long)output_ptr & (alignment - 1)) != 0) {
     printf("The output_ptr is not %d byte aligned\n", alignment);
     exit(1);
-  } else {
+  } else if (print_debug_info) {
     printf("The output_ptr IS %d byte aligned\n", alignment);
   }
 
+#if defined(_OPENMP)
+  int nThreads = omp_get_max_threads(); /* number of threads */
+#else
+  int nThreads = 1; /* number of threads */
+#endif
+
   if (print_debug_info) {
 #if defined(_OPENMP)
-#pragma omp parallel
+#pragma omp parallel num_threads(nThreads)
 #endif
     {
 #if defined(_OPENMP)
@@ -75,15 +81,9 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   }
 
   if (print_debug_info) {
-#pragma omp parallel
+#pragma omp parallel num_threads(nThreads)
     { printf("Third tid = %d\n", omp_get_thread_num()); }
   }
-
-#if defined(_OPENMP)
-  int nThreads = omp_get_max_threads(); /* number of threads */
-#else
-  int nThreads = 1; /* number of threads */
-#endif
 
   if (print_debug_info) {
     printf("nThreads = %d\n", nThreads);
@@ -304,7 +304,7 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
   }
 
 #if defined(_OPENMP)
-#pragma omp parallel
+#pragma omp parallel num_threads(nThreads)
 #endif
   {
 #if defined(_OPENMP)

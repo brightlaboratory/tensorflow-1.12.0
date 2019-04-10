@@ -1193,7 +1193,24 @@ Status IrEmitter::HandleBatchNormTraining(HloInstruction* batchnorm_training) {
        float_ptr_type, float_ptr_type, int64_type},
       /*isVarArg=*/false);
 
+  int64 useNavieVersion = 0;
+  {
+    const char* env = getenv("TF_LIBXSMM_USE_NAIVE_BATCHNORM");
+    if (env && strlen(env) > 0) {
+      VLOG(1) << "TF_LIBXSMM_USE_NAIVE_BATCHNORM: " << env << "\n";
+
+      if (strcmp(env, "TRUE") == 0) {
+        useNavieVersion = 1;
+      }
+    }
+  }
+
   const char* fn_name = runtime::kLibxsmmDnnFusedBatchnormSymbolName;
+
+  if (useNavieVersion) {
+    fn_name = runtime::kLibxsmmStubSymbolName;
+  }
+
   llvm::Function* libxsmm_stub_func = llvm::cast<llvm::Function>(
       module_->getOrInsertFunction(fn_name, fusedbatchnorm_type));
   libxsmm_stub_func->setCallingConv(llvm::CallingConv::C);
