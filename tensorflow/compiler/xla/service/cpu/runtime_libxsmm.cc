@@ -395,8 +395,11 @@ void __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm(
     printf("\n");
   }
 
-  printf("%.2f ",
-         LIBXSMM_VLA_ACCESS(4, output, N - 1, H - 1, W - 1, C - 1, H, W, C));
+  {
+    LIBXSMM_VLA_DECL(4, const float, output, output_ptr, H, W, C);
+    printf("%.2f ",
+           LIBXSMM_VLA_ACCESS(4, output, N - 1, H - 1, W - 1, C - 1, H, W, C));
+  }
 
   if (print_debug_info) {
     printf("Returning from __xla_cpu_runtime_LibxsmmDnnFusedBatchnorm\n");
